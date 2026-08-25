@@ -25,6 +25,21 @@ type RiotPlayer = {
   icon?: string;
 };
 
+
+const PARTICIPANTS = [
+  { name: "KIWIX", riotId: "Nissaxter ENJ#RAGE", label: "PARTICIPANTE" },
+  { name: "MARCCALVO", riotId: "Tyrhys Dolan#RCD", label: "PARTICIPANTE" },
+  { name: "FARDOS31", riotId: "Myrwn#0031", label: "PARTICIPANTE" },
+  { name: "YUKI26", riotId: "palladinni#EUW", label: "PARTICIPANTE" },
+  { name: "DELACASA95", riotId: "grakulaq#EUW", label: "PARTICIPANTE" },
+  { name: "BOUNJIMI", riotId: "xokas the boss #005", label: "PARTICIPANTE" },
+  { name: "OREWARUO", riotId: "Sukehir0 Yami#Zoro", label: "PARTICIPANTE" },
+  { name: "CRIS", riotId: "Calm Smurf#EUW", label: "PARTICIPANTE" },
+  { name: "SALLANMAN", riotId: "Lo Narisut#1492", label: "PARTICIPANTE" },
+  { name: "BYGREFUSO", riotId: "tinaJJ#6700", label: "PARTICIPANTE" },
+  { name: "KAWINHO15", riotId: "GodzOclock#EUW", label: "PARTICIPANTE" },
+  { name: "AL3", riotId: "laaw Traafalgar#EUW", label: "PARTICIPANTE" },
+] as const;
 const STREAMER_ORDER = [
   "bygrefuso",
   "crisblade04",
@@ -35,6 +50,7 @@ const STREAMER_ORDER = [
   "delakelly",
   "euwthe4l3",
   "kawinho15_",
+  "marcsuarezdp",
 ];
 
 const streamerLabels: Record<string, "STREAM" | "PRO"> = {
@@ -47,33 +63,8 @@ const streamerLabels: Record<string, "STREAM" | "PRO"> = {
   delakelly: "STREAM",
   euwthe4l3: "STREAM",
   kawinho15_: "STREAM",
+  marcsuarezdp: "STREAM",
 };
-
-const PARTICIPANTS = [
-  { name: "Kiwix", riotId: "ENJ#RAGE", stream: null, label: "PARTICIPANTE" },
-  { name: "marccalvo", riotId: "Dolan#RCD", stream: null, label: "PARTICIPANTE" },
-  { name: "Fardos31", riotId: "Myrwn#0031", stream: "fardos_31", label: "STREAM" },
-  { name: "Yuuki26", riotId: "palladinni#EUW", stream: "yuuki26_", label: "STREAM" },
-  { name: "Delacasa95", riotId: "grakulaq#EUW", stream: "delakelly", label: "STREAM" },
-  { name: "Bounjimi", riotId: "xokas the boss#005", stream: null, label: "PARTICIPANTE" },
-  { name: "OreWaRuo", riotId: "Sukehir0 Yami#Zoro", stream: "orewarulo", label: "STREAM" },
-  { name: "cris", riotId: "Calm Smurf#EUW", stream: "crisblade04", label: "STREAM" },
-  { name: "Sallanman", riotId: "Lo Narisut#1492", stream: "sallanman_cat", label: "PRO" },
-  { name: "ByGrefuso", riotId: "tinaJJ#6700", stream: "bygrefuso", label: "STREAM" },
-  { name: "Kawinho15", riotId: "GodzOclock#EUW", stream: "kawinho15_", label: "STREAM" },
-  { name: "Al3", riotId: "laaw Traafalgar#EUW", stream: "euwthe4l3", label: "STREAM" },
-] as const;
-
-const RIOT_OPGG: Record<string, string> = Object.fromEntries(
-  PARTICIPANTS.map((p) => [
-    p.name,
-    `https://op.gg/lol/summoners/euw/${encodeURIComponent(p.riotId.split("#")[0])}-${encodeURIComponent(p.riotId.split("#")[1])}`,
-  ])
-);
-
-function getOpggUrl(player: RiotPlayer) {
-  return RIOT_OPGG[player.name] || `https://op.gg/lol/summoners/euw/${encodeURIComponent(player.name)}`;
-}
 
 const FAQS = [
   {
@@ -558,10 +549,9 @@ export default function Home() {
 
         <nav>
           <a href="#inicio">INICIO</a>
-          <a href="#bygrefuso">BYGREFUSO</a>
-          <a href="#clasificacion">CLASIFICACIÓN</a>
-          <a href="#participantes">PARTICIPANTES</a>
           <a href="#torneo">EL TORNEO</a>
+          <a href="#participantes">PARTICIPANTES</a>
+          <a href="#clasificacion">CLASIFICACIÓN</a>
           <a href="#normas">NORMAS</a>
           <a href="#faq">FAQ</a>
         </nav>
@@ -756,155 +746,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="bygrefuso" className="content-section organizer-main-section">
-        <div className="section-heading-large">
-          <span>01</span>
-          <div>
-            <p className="section-kicker">ORGANIZADOR · TWITCH</p>
-            <h2>BYGREFUSO</h2>
-          </div>
-        </div>
-
-        <div className="organizer-main-card">
-          <div className="organizer-main-copy">
-            <span className="organizer-live-dot">●</span>
-            <div>
-              <strong>TWITCH.COM/BYGREFUSO</strong>
-              <p>
-                AQUÍ PODRÁS SEGUIR LOS DIRECTOS DEL ORGANIZADOR Y TODA LA COBERTURA DEL GREFUSO CHALLENGE.
-              </p>
-            </div>
-          </div>
-          <a
-            href="https://www.twitch.tv/bygrefuso"
-            target="_blank"
-            rel="noreferrer"
-            className="watch-button"
-          >
-            VER TWITCH →
-          </a>
-        </div>
-      </section>
-
-      <section id="clasificacion" className="content-section">
-        <div className="section-heading-large">
-          <span>02</span>
-          <div>
-            <p className="section-kicker">RANKING EN DIRECTO · RIOT API</p>
-            <h2>CLASIFICACIÓN</h2>
-          </div>
-        </div>
-
-        <div className="ranking-note">
-          <span>🏆</span>
-          <div>
-            <strong>RANGO + LP = CLASIFICACIÓN</strong>
-            <p>HAZ CLIC EN CUALQUIER JUGADOR PARA ABRIR SU PERFIL EN OP.GG.</p>
-          </div>
-        </div>
-
-        <div className="ranking-box">
-          <div className="ranking-header">
-            <span>#</span>
-            <span>PARTICIPANTE</span>
-            <span>RANGO</span>
-            <span>LP</span>
-          </div>
-
-          {sortedPlayers.length > 0 ? (
-            sortedPlayers.map((player, index) => (
-              <a
-                className="ranking-row ranking-link"
-                key={player.name}
-                href={getOpggUrl(player)}
-                target="_blank"
-                rel="noreferrer"
-                title={`VER OP.GG DE ${player.name}`}
-              >
-                <strong className="position">{index + 1}</strong>
-
-                <div className="ranking-player">
-                  {player.icon && (
-                    <img src={player.icon} alt={player.name} />
-                  )}
-                  <div>
-                    <span>{player.name}</span>
-                    <small>VER OP.GG ↗</small>
-                  </div>
-                </div>
-
-                <span className="rank-name">{player.tier} {player.rank}</span>
-                <strong className="lp">{player.lp} LP</strong>
-              </a>
-            ))
-          ) : (
-            <div className="ranking-empty">
-              <div className="ranking-empty-icon">🏆</div>
-              <h3>CLASIFICACIÓN EN PREPARACIÓN</h3>
-              <p>
-                La clasificación se actualizará automáticamente mediante la Riot API.
-              </p>
-              <span>RANGO + LP</span>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section id="participantes" className="content-section">
-        <div className="section-heading-large">
-          <span>03</span>
-          <div>
-            <p className="section-kicker">LOS 12 PARTICIPANTES</p>
-            <h2>PARTICIPANTES</h2>
-          </div>
-        </div>
-
-        <div className="participants-grid">
-          {PARTICIPANTS.map((participant) => {
-            const streamer = participant.stream
-              ? streamers.find((item) => item.channel === participant.stream)
-              : undefined;
-
-            const content = (
-              <>
-                <div className="participant-avatar">
-                  {streamer?.avatar ? (
-                    <img src={streamer.avatar} alt={participant.name} />
-                  ) : (
-                    <span>{participant.name[0]}</span>
-                  )}
-                </div>
-                <div>
-                  <h3>{participant.name}</h3>
-                  <span>{participant.label}</span>
-                  <small className="participant-riotid">{participant.riotId}</small>
-                </div>
-                {streamer?.live && <b className="participant-live">LIVE</b>}
-              </>
-            );
-
-            return participant.stream ? (
-              <a
-                key={participant.name}
-                href={`https://www.twitch.tv/${participant.stream}`}
-                target="_blank"
-                rel="noreferrer"
-                className="participant-card"
-              >
-                {content}
-              </a>
-            ) : (
-              <div key={participant.name} className="participant-card">
-                {content}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
       <section id="torneo" className="content-section">
         <div className="section-heading-large">
-          <span>04</span>
+          <span>01</span>
           <div>
             <p className="section-kicker">GREFUSO CHALLENGE 2026</p>
             <h2>EL TORNEO</h2>
@@ -950,9 +794,136 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="participantes" className="content-section">
+        <div className="section-heading-large">
+          <span>02</span>
+          <div>
+            <p className="section-kicker">LOS PARTICIPANTES</p>
+            <h2>PARTICIPANTES</h2>
+          </div>
+        </div>
+
+        <div className="participants-grid">
+          {STREAMER_ORDER.map((channel) => {
+            const streamer = streamers.find(
+              (item) => item.channel === channel
+            );
+
+            const names: Record<string, string> = {
+              bygrefuso: "ByGrefuso",
+              crisblade04: "Crisblade04",
+              nerea3005_: "Nerea3005_",
+              sallanman_cat: "Sallanman",
+              orewarulo: "Orewarulo",
+              fardos_31: "Fardos",
+              delakelly: "Delakelly",
+              euwthe4l3: "4l3",
+              kawinho15_: "Kawinho15",
+            };
+
+            return (
+              <a
+                key={channel}
+                href={`https://www.twitch.tv/${channel}`}
+                target="_blank"
+                rel="noreferrer"
+                className="participant-card"
+              >
+                <div className="participant-avatar">
+                  {streamer?.avatar ? (
+                    <img
+                      src={streamer.avatar}
+                      alt={names[channel]}
+                    />
+                  ) : (
+                    <span>{names[channel][0]}</span>
+                  )}
+                </div>
+
+                <div>
+                  <h3>{names[channel]}</h3>
+                  <span>
+                    {streamerLabels[channel] === "PRO"
+                      ? "PRO"
+                      : "STREAM"}
+                  </span>
+                </div>
+
+                {streamer?.live && (
+                  <b className="participant-live">LIVE</b>
+                )}
+              </a>
+            );
+          })}
+        </div>
+      </section>
+
+      <section id="clasificacion" className="content-section">
+        <div className="section-heading-large">
+          <span>03</span>
+          <div>
+            <p className="section-kicker">RANKING EN DIRECTO</p>
+            <h2>CLASIFICACIÓN</h2>
+          </div>
+        </div>
+
+        <div className="ranking-box">
+          <div className="ranking-header">
+            <span>#</span>
+            <span>PARTICIPANTE</span>
+            <span>RANGO</span>
+            <span>LP</span>
+          </div>
+
+          {sortedPlayers.length > 0 ? (
+            sortedPlayers.map((player, index) => (
+              <div className="ranking-row" key={player.name}>
+                <strong className="position">
+                  {index + 1}
+                </strong>
+
+                <div className="ranking-player">
+                  {player.icon && (
+                    <img
+                      src={player.icon}
+                      alt={player.name}
+                    />
+                  )}
+
+                  <span>{player.name}</span>
+                </div>
+
+                <span className="rank-name">
+                  {player.tier} {player.rank}
+                </span>
+
+                <strong className="lp">
+                  {player.lp} LP
+                </strong>
+              </div>
+            ))
+          ) : (
+            <div className="ranking-empty">
+              <div className="ranking-empty-icon">🏆</div>
+
+              <h3>CLASIFICACIÓN EN PREPARACIÓN</h3>
+
+              <p>
+                La clasificación se actualizará automáticamente mediante la
+                Riot API.
+              </p>
+
+              <span>
+                RANGO + LP
+              </span>
+            </div>
+          )}
+        </div>
+      </section>
+
       <section id="normas" className="content-section rules-section">
         <div className="section-heading-large">
-          <span>05</span>
+          <span>04</span>
           <div>
             <p className="section-kicker">REGLAMENTO OFICIAL</p>
             <h2>NORMAS</h2>
@@ -1035,7 +1006,7 @@ export default function Home() {
 
       <section id="faq" className="content-section faq-section">
         <div className="section-heading-large">
-          <span>06</span>
+          <span>05</span>
           <div>
             <p className="section-kicker">TIENES DUDAS</p>
             <h2>FAQ</h2>
@@ -1072,8 +1043,6 @@ export default function Home() {
       </footer>
 
       <style jsx global>{`
-        @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
         * {
           box-sizing: border-box;
         }
@@ -1092,8 +1061,7 @@ export default function Home() {
             ),
             #050505;
           color: white;
-          font-family: "Space Grotesk", Arial, Helvetica, sans-serif;
-          text-transform: uppercase;
+          font-family: Arial, Helvetica, sans-serif;
         }
 
         a {
@@ -1675,104 +1643,6 @@ export default function Home() {
           font-size: 8px;
         }
 
-        .ranking-note {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-          margin-bottom: 14px;
-          padding: 15px 18px;
-          border: 1px solid rgba(255, 0, 119, 0.35);
-          border-radius: 9px;
-          background: rgba(255, 0, 119, 0.035);
-        }
-
-        .ranking-note > span {
-          font-size: 25px;
-        }
-
-        .ranking-note strong {
-          font-size: 11px;
-        }
-
-        .ranking-note p {
-          margin: 5px 0 0;
-          color: #777;
-          font-size: 9px;
-        }
-
-        .ranking-link {
-          color: inherit;
-          text-decoration: none;
-          cursor: pointer;
-          transition: 0.2s;
-        }
-
-        .ranking-link:hover {
-          background: rgba(255, 0, 119, 0.055);
-          border-left: 3px solid #ff0a83;
-          padding-left: 19px;
-        }
-
-        .ranking-player > div {
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-        }
-
-        .ranking-player small {
-          color: #666;
-          font-size: 7px;
-          font-weight: 900;
-          letter-spacing: 0.5px;
-        }
-
-        .ranking-link:hover .ranking-player small {
-          color: #ff0a83;
-        }
-
-        .organizer-main-card {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 25px;
-          padding: 28px;
-          border: 1px solid rgba(255, 0, 119, 0.45);
-          border-radius: 12px;
-          background: linear-gradient(110deg, rgba(255,0,119,.08), #09090b 55%);
-        }
-
-        .organizer-main-copy {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .organizer-live-dot {
-          color: #ff0a83;
-          font-size: 25px;
-          text-shadow: 0 0 15px #ff0a83;
-        }
-
-        .organizer-main-copy strong {
-          font-size: 14px;
-        }
-
-        .organizer-main-copy p {
-          max-width: 650px;
-          color: #777;
-          font-size: 11px;
-          line-height: 1.7;
-          margin: 7px 0 0;
-        }
-
-        .participant-riotid {
-          display: block;
-          color: #555;
-          font-size: 8px;
-          margin-top: 5px;
-          text-transform: none;
-        }
-
         .ranking-box {
           border: 1px solid rgba(255, 0, 119, 0.35);
           border-radius: 12px;
@@ -2192,11 +2062,6 @@ export default function Home() {
         }
 
         @media (max-width: 700px) {
-          .organizer-main-card {
-            align-items: flex-start;
-            flex-direction: column;
-          }
-
           .navbar {
             padding: 0 15px;
           }
