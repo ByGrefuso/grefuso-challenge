@@ -1,161 +1,93 @@
 const streamers = [
   {
+    name: "ByGrefuso",
+    platform: "Twitch",
+    url: "https://www.twitch.tv/bygrefuso",
+    tag: "STREAM",
+    featured: true,
+  },
+  {
     name: "Crisblade04",
     platform: "Twitch",
     url: "https://www.twitch.tv/crisblade04",
-    live: false,
+    tag: "STREAM",
   },
   {
     name: "Nerea3005_",
     platform: "Twitch",
     url: "https://www.twitch.tv/nerea3005_",
-    live: false,
+    tag: "STREAM",
   },
   {
     name: "Sallanman_cat",
     platform: "Twitch",
     url: "https://www.twitch.tv/sallanman_cat",
-    live: false,
+    tag: "PRO",
+    stream: true,
   },
   {
     name: "OreWaRuo",
     platform: "Twitch",
     url: "https://www.twitch.tv/orewarulo",
-    live: false,
+    tag: "STREAM",
   },
   {
     name: "Fardos_31",
     platform: "Twitch",
     url: "https://www.twitch.tv/fardos_31",
-    live: false,
+    tag: "STREAM",
   },
   {
     name: "ByDagma",
     platform: "Kick",
     url: "https://kick.com/bydagma",
-    live: false,
+    tag: "STREAM",
   },
   {
     name: "Delakelly",
     platform: "Twitch",
     url: "https://www.twitch.tv/delakelly",
-    live: false,
+    tag: "STREAM",
   },
 ];
 
 const ranking = [
-  {
-    position: 1,
-    name: "ByGrefuso",
-    rank: "—",
-    lp: "—",
-    wins: "—",
-    losses: "—",
-    winrate: "—",
-  },
-  {
-    position: 2,
-    name: "Kiwix",
-    rank: "—",
-    lp: "—",
-    wins: "—",
-    losses: "—",
-    winrate: "—",
-  },
-  {
-    position: 3,
-    name: "marccalvo",
-    rank: "—",
-    lp: "—",
-    wins: "—",
-    losses: "—",
-    winrate: "—",
-  },
-  {
-    position: 4,
-    name: "Fardos31",
-    rank: "—",
-    lp: "—",
-    wins: "—",
-    losses: "—",
-    winrate: "—",
-  },
-  {
-    position: 5,
-    name: "Yuki26",
-    rank: "—",
-    lp: "—",
-    wins: "—",
-    losses: "—",
-    winrate: "—",
-  },
-  {
-    position: 6,
-    name: "Delacasa95",
-    rank: "—",
-    lp: "—",
-    wins: "—",
-    losses: "—",
-    winrate: "—",
-  },
+  "ByGrefuso",
+  "Kiwix",
+  "marccalvo",
+  "Fardos31",
+  "Yuki26",
+  "Delacasa95",
+  "Bounjimi",
+  "OreWaRuo",
+  "cris",
+  "Sallanman",
+  "Kawinho15",
+  "Al3",
 ];
-
-function Countdown() {
-  return (
-    <div className="countdown">
-      <div className="countdown-title">
-        EL CHALLENGE COMIENZA EN
-      </div>
-
-      <div className="countdown-numbers">
-        <div>
-          <strong>--</strong>
-          <span>DÍAS</span>
-        </div>
-
-        <div>
-          <strong>--</strong>
-          <span>HORAS</span>
-        </div>
-
-        <div>
-          <strong>--</strong>
-          <span>MINUTOS</span>
-        </div>
-
-        <div>
-          <strong>--</strong>
-          <span>SEGUNDOS</span>
-        </div>
-      </div>
-
-      <div className="start-date">
-        ◷ VIERNES 28 DE AGOSTO A LAS 20:00
-      </div>
-    </div>
-  );
-}
 
 export default function Home() {
   return (
     <main>
+
       {/* NAVBAR */}
 
       <header className="navbar">
-        <div className="nav-logo">
+
+        <a href="#inicio" className="nav-logo">
           <img
             src="/logo.png"
             alt="Grefuso Challenge"
           />
-        </div>
+        </a>
 
         <nav>
           <a className="active" href="#inicio">
             INICIO
           </a>
 
-          <a href="#torneo">
-            EL TORNEO
+          <a href="#directos">
+            DIRECTOS
           </a>
 
           <a href="#participantes">
@@ -166,13 +98,15 @@ export default function Home() {
             CLASIFICACIÓN
           </a>
 
-          <a href="#faq">
-            FAQ
+          <a href="#torneo">
+            EL TORNEO
           </a>
         </nav>
 
-        <div className="socials">
+        <div className="nav-actions">
+
           <a
+            className="social-button"
             href="https://www.twitch.tv/bygrefuso"
             target="_blank"
             rel="noreferrer"
@@ -180,229 +114,248 @@ export default function Home() {
             TW
           </a>
 
-          <a href="#">
-            IG
-          </a>
-
           <a
-            className="twitch-button"
+            className="main-button"
             href="https://www.twitch.tv/bygrefuso"
             target="_blank"
             rel="noreferrer"
           >
-            ▣ SEGUIR EN TWITCH
+            VER EN TWITCH
           </a>
+
         </div>
+
       </header>
+
 
       {/* HERO */}
 
-      <section
-        id="inicio"
-        className="hero"
-      >
-        <div className="hero-left">
+      <section id="inicio" className="hero">
 
-          <img
-            className="hero-logo"
-            src="/logo.png"
-            alt="Grefuso Challenge"
-          />
+        <div className="hero-background" />
 
-          <p className="subtitle">
-            SOLOQ CHALLENGE DE LEAGUE OF LEGENDS
-          </p>
+        <div className="hero-overlay" />
 
-          <div className="date-box">
-            DEL 28 DE AGOSTO AL 15 DE SEPTIEMBRE
-          </div>
+        <div className="hero-content">
 
-          <Countdown />
+          <div className="hero-info">
 
-        </div>
+            <div className="event-label">
+              SOLOQ CHALLENGE
+            </div>
 
-        {/* TU STREAM EN PRIMER PLANO */}
+            <img
+              className="hero-logo"
+              src="/logo.png"
+              alt="Grefuso Challenge"
+            />
 
-        <div className="live-feature">
-
-          <div className="live-badge">
-            <span />
-            EN DIRECTO
-          </div>
-
-          <div className="live-content">
-
-            <h1>
-              ByGrefuso
-              <span className="verified">
-                ✓
-              </span>
-            </h1>
-
-            <p className="live-description">
-              ◉ SoloQ Challenge
+            <p className="hero-description">
+              El desafío competitivo de League of Legends.
+              <br />
+              Compite, escala y demuestra quién es el mejor.
             </p>
 
-            <p className="game-name">
-              League of Legends
-            </p>
+            <div className="event-date">
+              28 AGOSTO — 15 SEPTIEMBRE 2026
+            </div>
 
-            <a
-              className="watch-button"
-              href="https://www.twitch.tv/bygrefuso"
-              target="_blank"
-              rel="noreferrer"
-            >
-              ▣ VER DIRECTO EN TWITCH
-            </a>
+            <div className="countdown">
 
-            <p className="viewers">
-              ● En directo
-            </p>
+              <div className="count-box">
+                <strong>--</strong>
+                <span>DÍAS</span>
+              </div>
 
-          </div>
+              <div className="count-box">
+                <strong>--</strong>
+                <span>HORAS</span>
+              </div>
 
-        </div>
-      </section>
+              <div className="count-box">
+                <strong>--</strong>
+                <span>MIN</span>
+              </div>
 
-      {/* DIRECTOS */}
-
-      <section className="streams-section">
-
-        <div className="section-header">
-
-          <div>
-            <h2>
-              <span className="pink-dot" />
-              DIRECTOS AHORA
-            </h2>
-
-            <p>
-              Mira quién está en directo en el Challenge
-            </p>
-          </div>
-
-          <button>
-            VER TODOS LOS CANALES →
-          </button>
-
-        </div>
-
-        <div className="streams-grid">
-
-          {/* BYGREFUSO SIEMPRE PRIMERO */}
-
-          <a
-            className="stream-card featured is-live"
-            href="https://www.twitch.tv/bygrefuso"
-            target="_blank"
-            rel="noreferrer"
-          >
-
-            <div className="stream-preview">
-
-              <span className="live-label">
-                ● EN DIRECTO
-              </span>
-
-              <div className="fake-game-screen">
-                GREFUSO
-                <br />
-                CHALLENGE
+              <div className="count-box">
+                <strong>--</strong>
+                <span>SEG</span>
               </div>
 
             </div>
 
-            <div className="stream-info">
+            <p className="start-text">
+              EL CHALLENGE COMIENZA EL VIERNES 28 A LAS 20:00
+            </p>
 
-              <div className="avatar">
+          </div>
+
+
+          {/* STREAM PRINCIPAL */}
+
+          <div className="featured-stream">
+
+            <div className="featured-top">
+
+              <span className="live-indicator">
+                <span />
+                EN DIRECTO
+              </span>
+
+              <span className="platform-label">
+                TWITCH
+              </span>
+
+            </div>
+
+            <div className="featured-preview">
+
+              <div className="preview-glow">
+
+                <span>
+                  GREFUSO
+                </span>
+
+                <strong>
+                  CHALLENGE
+                </strong>
+
+              </div>
+
+            </div>
+
+            <div className="featured-info">
+
+              <div className="streamer-avatar">
                 G
               </div>
 
-              <div>
-                <h3>
+              <div className="streamer-details">
+
+                <h2>
                   ByGrefuso
-                </h3>
+                </h2>
 
                 <p>
-                  En directo
+                  League of Legends
                 </p>
+
               </div>
 
-              <span className="platform twitch">
-                TW
+              <span className="tag stream-tag">
+                STREAM
               </span>
+
+              <a
+                href="https://www.twitch.tv/bygrefuso"
+                target="_blank"
+                rel="noreferrer"
+                className="watch-live"
+              >
+                VER DIRECTO
+              </a>
 
             </div>
 
-          </a>
+          </div>
 
-          {/* RESTO DE STREAMERS */}
+        </div>
+
+      </section>
+
+
+      {/* DIRECTOS */}
+
+      <section
+        id="directos"
+        className="section streams-section"
+      >
+
+        <div className="section-title">
+
+          <div>
+            <span className="eyebrow">
+              GREFUSO CHALLENGE
+            </span>
+
+            <h2>
+              DIRECTOS
+              <span> AHORA</span>
+            </h2>
+
+            <p>
+              Todos los participantes que están haciendo streaming.
+            </p>
+          </div>
+
+          <span className="live-count">
+            ● DIRECTOS EN VIVO
+          </span>
+
+        </div>
+
+
+        <div className="streams-grid">
 
           {streamers.map((streamer) => (
 
             <a
-              className={`stream-card ${
-                streamer.live
-                  ? "is-live"
-                  : "is-offline"
-              }`}
               href={streamer.url}
               target="_blank"
               rel="noreferrer"
               key={streamer.name}
+              className={`stream-card ${
+                streamer.featured ? "featured-card" : ""
+              }`}
             >
 
-              <div className="stream-preview">
+              <div className="card-preview">
 
-                <span
-                  className={
-                    streamer.live
-                      ? "live-label"
-                      : "offline-label"
-                  }
-                >
-                  {streamer.live
-                    ? "● EN DIRECTO"
-                    : "OFFLINE"}
-                </span>
+                <div className="preview-background">
 
-                <div className="fake-game-screen">
-                  {streamer.live
-                    ? "LEAGUE OF LEGENDS"
-                    : "GREFUSO"}
+                  <span>
+                    LEAGUE
+                  </span>
+
+                  <strong>
+                    OF LEGENDS
+                  </strong>
+
                 </div>
+
+                <span className="offline-status">
+                  OFFLINE
+                </span>
 
               </div>
 
-              <div className="stream-info">
 
-                <div className="avatar">
+              <div className="card-info">
+
+                <div className="card-avatar">
                   {streamer.name.charAt(0)}
                 </div>
 
-                <div>
+                <div className="card-name">
+
                   <h3>
                     {streamer.name}
                   </h3>
 
                   <p>
-                    {streamer.live
-                      ? "En directo"
-                      : "Offline"}
+                    {streamer.platform}
                   </p>
+
                 </div>
 
                 <span
-                  className={
-                    streamer.platform === "Kick"
-                      ? "platform kick"
-                      : "platform twitch"
-                  }
+                  className={`tag ${
+                    streamer.tag === "PRO"
+                      ? "pro-tag"
+                      : "stream-tag"
+                  }`}
                 >
-                  {streamer.platform === "Kick"
-                    ? "K"
-                    : "TW"}
+                  {streamer.tag}
                 </span>
 
               </div>
@@ -415,89 +368,162 @@ export default function Home() {
 
       </section>
 
+
+      {/* PARTICIPANTES */}
+
+      <section
+        id="participantes"
+        className="participants-section"
+      >
+
+        <div className="participants-content">
+
+          <span className="eyebrow">
+            LOS COMPETIDORES
+          </span>
+
+          <h2>
+            12 JUGADORES.
+            <br />
+            <span>UN SOLO GANADOR.</span>
+          </h2>
+
+          <p>
+            Jugadores compitiendo durante todo el Challenge
+            para escalar lo máximo posible en League of Legends.
+          </p>
+
+          <a
+            href="#clasificacion"
+            className="outline-button"
+          >
+            VER CLASIFICACIÓN
+          </a>
+
+        </div>
+
+      </section>
+
+
       {/* CLASIFICACIÓN */}
 
       <section
         id="clasificacion"
-        className="ranking-section"
+        className="section ranking-section"
       >
 
-        <div className="section-header">
+        <div className="section-title">
 
           <div>
+
+            <span className="eyebrow">
+              RANKING
+            </span>
+
             <h2>
-              <span className="pink-dot" />
-              CLASIFICACIÓN EN DIRECTO
+              CLASIFICACIÓN
+              <span> EN DIRECTO</span>
             </h2>
 
             <p>
-              Actualizada automáticamente durante el Challenge
+              Las posiciones se actualizarán automáticamente.
             </p>
+
           </div>
 
-          <span className="last-update">
-            ÚLTIMA ACTUALIZACIÓN: —
+          <span className="update-status">
+            ● ACTUALIZACIÓN AUTOMÁTICA
           </span>
 
         </div>
 
+
         <div className="ranking-table">
 
           <div className="ranking-header">
-            <span>#</span>
-            <span>JUGADOR</span>
-            <span>RANGO ACTUAL</span>
-            <span>PL</span>
-            <span>VICTORIAS</span>
-            <span>DERROTAS</span>
-            <span>WINRATE</span>
+
+            <span>
+              #
+            </span>
+
+            <span>
+              JUGADOR
+            </span>
+
+            <span>
+              RANGO
+            </span>
+
+            <span>
+              PL
+            </span>
+
+            <span>
+              V
+            </span>
+
+            <span>
+              D
+            </span>
+
+            <span>
+              WR
+            </span>
+
           </div>
 
-          {ranking.map((player) => (
+
+          {ranking.map((player, index) => (
 
             <div
-              className="ranking-row"
-              key={player.name}
+              className={`ranking-row ${
+                player === "Sallanman"
+                  ? "pro-player"
+                  : ""
+              }`}
+              key={player}
             >
 
-              <span className="position">
-                {player.position}
+              <span className="rank-position">
+                {index + 1}
               </span>
 
-              <span className="player-name">
+              <span className="rank-player">
 
-                <span className="small-avatar">
-                  {player.name.charAt(0)}
+                <span className="rank-avatar">
+                  {player.charAt(0)}
                 </span>
 
-                {player.name}
+                <strong>
+                  {player}
+                </strong>
 
-                {player.name === "ByGrefuso" && (
-                  <span className="you-badge">
-                    TÚ
+                {player === "Sallanman" && (
+                  <span className="tag pro-tag">
+                    PRO
                   </span>
                 )}
 
               </span>
 
-              <span>
-                {player.rank}
+              <span className="rank-value">
+                —
               </span>
 
-              <span>
-                {player.lp}
+              <span className="rank-value">
+                —
               </span>
 
-              <span className="wins">
-                {player.wins}
+              <span className="win-value">
+                —
               </span>
 
-              <span className="losses">
-                {player.losses}
+              <span className="loss-value">
+                —
               </span>
 
-              <span>
-                {player.winrate}
+              <span className="rank-value">
+                —
               </span>
 
             </div>
@@ -506,11 +532,39 @@ export default function Home() {
 
         </div>
 
-        <button className="full-ranking">
-          VER CLASIFICACIÓN COMPLETA →
-        </button>
+      </section>
+
+
+      {/* TORNEO */}
+
+      <section
+        id="torneo"
+        className="tournament-section"
+      >
+
+        <div>
+
+          <span className="eyebrow">
+            GREFUSO CHALLENGE 2026
+          </span>
+
+          <h2>
+            PLAY.
+            <span>
+              GRIND.
+            </span>
+            WIN.
+          </h2>
+
+          <p>
+            Una competición creada para disfrutar,
+            competir y llevar League of Legends al límite.
+          </p>
+
+        </div>
 
       </section>
+
 
       {/* FOOTER */}
 
@@ -521,9 +575,13 @@ export default function Home() {
           alt="Grefuso Challenge"
         />
 
-        <p>
-          © 2026 Grefuso Challenge · ByGrefuso
-        </p>
+        <span>
+          GREFUSO CHALLENGE © 2026
+        </span>
+
+        <span>
+          BYGREFUSO
+        </span>
 
       </footer>
 
