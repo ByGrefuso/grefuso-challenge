@@ -1,170 +1,109 @@
 import { NextResponse } from "next/server";
 
-const RIOT_API_KEY = process.env.RIOT_API_KEY;
+const PARTICIPANTS = [
+  { name: "Kiwix", riotId: "ENJ#RAGE" },
+  { name: "marccalvo", riotId: "Dolan#RCD" },
+  { name: "Fardos31", riotId: "Myrwn#0031" },
+  { name: "Yuuki26", riotId: "palladinni#EUW" },
+  { name: "Delacasa95", riotId: "grakulaq#EUW" },
+  { name: "Bounjimi", riotId: "xokas the boss#005" },
+  { name: "OreWaRuo", riotId: "Sukehir0 Yami#Zoro" },
+  { name: "cris", riotId: "Calm Smurf#EUW" },
+  { name: "Sallanman", riotId: "Lo Narisut#1492" },
+  { name: "ByGrefuso", riotId: "tinaJJ#6700" },
+  { name: "Kawinho15", riotId: "GodzOclock#EUW" },
+  { name: "Al3", riotId: "laaw Traafalgar#EUW" },
+] as const;
 
-const players = [
-  { name: "Kiwix", riotId: "ENJ", tagLine: "RAGE" },
-  { name: "marccalvo", riotId: "Dolan", tagLine: "RCD" },
-  { name: "Fardos31", riotId: "Myrwn", tagLine: "0031" },
-  { name: "Yuki26", riotId: "palladinni", tagLine: "EUW" },
-  { name: "Delacasa95", riotId: "grakulaq", tagLine: "EUW" },
-  { name: "Bounjimi", riotId: "xokas the boss", tagLine: "005" },
-  { name: "OreWaRuo", riotId: "Sukehir0 Yami", tagLine: "Zoro" },
-  { name: "cris", riotId: "Calm Smurf", tagLine: "EUW" },
-  { name: "sallanman", riotId: "Lo Narisut", tagLine: "1492" },
-  { name: "ByGrefuso", riotId: "tinaJJ", tagLine: "6700" },
-  { name: "Kawinho15", riotId: "GodzOclock", tagLine: "EUW" },
-  { name: "Al3", riotId: "laaw Traafalgar", tagLine: "EUW" },
-];
+const ACCOUNT_REGION = "europe";
+const PLATFORM = "euw1";
 
-const rankOrder: Record<string, number> = {
-  IRON: 1,
-  BRONZE: 2,
-  SILVER: 3,
-  GOLD: 4,
-  PLATINUM: 5,
-  EMERALD: 6,
-  DIAMOND: 7,
-  MASTER: 8,
-  GRANDMASTER: 9,
-  CHALLENGER: 10,
-};
+function riotHeaders() {
+  const key = process.env.RIOT_API_KEY;
+  if (!key) throw new Error("Falta RIOT_API_KEY en .env.local");
+  return { "X-Riot-Token": key };
+}
 
-const tierOrder: Record<string, number> = {
-  IV: 1,
-  III: 2,
-  II: 3,
-  I: 4,
-};
+async function riotFetch(url: string) {
+  const response = await fetch(url, {
+    headers: riotHeaders(),
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`Riot ${response.status}`);
+  return response.json();
+}
 
 export async function GET() {
-  if (!RIOT_API_KEY) {
-    return NextResponse.json(
-      {
-        error: "Falta configurar RIOT_API_KEY en las variables de entorno.",
-      },
-      { status: 500 }
-    );
-  }
+  try {
+    const results = await Promise.all(
+      PARTICIPANTS.map(async (participant) => {
+        const [gameName, tagLine] = participant.riotId.split("#");
 
-  const results = await Promise.all(
-    players.map(async (player) => {
-      try {
-        // 1. Riot ID -> PUUID
-        const accountUrl =
-          `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/` +
-          `${encodeURIComponent(player.riotId)}/${encodeURIComponent(player.tagLine)}`;
+        try {
+          const account = await riotFetch(
+            `https://${ACCOUNT_REGION}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`
+          );
 
-        const accountResponse = await fetch(accountUrl, {
-          headers: {
-            "X-Riot-Token": RIOT_API_KEY,
-          },
-          cache: "no-store",
-        });
+          const summoner = await riotFetch(
+            `https://${PLATFORM}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${encodeURIComponent(account.puuid)}`
+          );
 
-        if (!accountResponse.ok) {
+          const entries = await riotFetch(
+            `https://${PLATFORM}.api.riotgames.com/lol/league/v4/entries/by-summoner/${encodeURIComponent(summoner.id)}`
+          );
+
+          const soloQ = Array.isArray(entries)
+            ? entries.find((entry: any) => entry.queueType === "RANKED_SOLO_5x5")
+            : null;
+
+          if (!soloQ) {
+            return {
+              name: participant.name,
+              riotId: participant.riotId,
+              tier: "UNRANKED",
+              rank: "",
+              lp: 0,
+              wins: 0,
+              losses: 0,
+              icon: summoner.profileIconId
+                ? `https://ddragon.leagueoflegends.com/cdn/15.17.1/img/profileicon/${summoner.profileIconId}.png`
+                : undefined,
+            };
+          }
+
           return {
-            ...player,
-            tier: null,
-            rank: null,
-            lp: null,
-            error: `Riot ID no encontrado (${accountResponse.status})`,
+            name: participant.name,
+            riotId: participant.riotId,
+            tier: String(soloQ.tier || "UNRANKED"),
+            rank: String(soloQ.rank || ""),
+            lp: Number(soloQ.leaguePoints || 0),
+            wins: Number(soloQ.wins || 0),
+            losses: Number(soloQ.losses || 0),
+            icon: summoner.profileIconId
+              ? `https://ddragon.leagueoflegends.com/cdn/15.17.1/img/profileicon/${summoner.profileIconId}.png`
+              : undefined,
           };
-        }
-
-        const account = await accountResponse.json();
-
-        // 2. PUUID -> ranked SoloQ
-        const rankedUrl =
-          `https://euw1.api.riotgames.com/lol/league/v4/entries/by-puuid/` +
-          account.puuid;
-
-        const rankedResponse = await fetch(rankedUrl, {
-          headers: {
-            "X-Riot-Token": RIOT_API_KEY,
-          },
-          cache: "no-store",
-        });
-
-        if (!rankedResponse.ok) {
+        } catch (error) {
+          console.error(`Error Riot ${participant.riotId}:`, error);
           return {
-            ...player,
-            tier: null,
-            rank: null,
-            lp: null,
-            error: `No se pudo obtener ranked (${rankedResponse.status})`,
-          };
-        }
-
-        const rankedData = await rankedResponse.json();
-
-        // Solo SoloQ
-        const soloQ = rankedData.find(
-          (queue: any) => queue.queueType === "RANKED_SOLO_5x5"
-        );
-
-        if (!soloQ) {
-          return {
-            ...player,
+            name: participant.name,
+            riotId: participant.riotId,
             tier: "UNRANKED",
             rank: "",
             lp: 0,
             wins: 0,
             losses: 0,
-            error: null,
           };
         }
+      })
+    );
 
-        return {
-          ...player,
-          tier: soloQ.tier,
-          rank: soloQ.rank,
-          lp: soloQ.leaguePoints,
-          wins: soloQ.wins,
-          losses: soloQ.losses,
-          error: null,
-        };
-      } catch (error) {
-        return {
-          ...player,
-          tier: null,
-          rank: null,
-          lp: null,
-          error: "Error consultando Riot API",
-        };
-      }
-    })
-  );
-
-  // Orden de clasificación:
-  // Rango > División > LP
-  results.sort((a, b) => {
-    const aRank = a.tier ? rankOrder[a.tier] || 0 : 0;
-    const bRank = b.tier ? rankOrder[b.tier] || 0 : 0;
-
-    if (bRank !== aRank) {
-      return bRank - aRank;
-    }
-
-    const aDivision = a.rank ? tierOrder[a.rank] || 0 : 0;
-    const bDivision = b.rank ? tierOrder[b.rank] || 0 : 0;
-
-    if (bDivision !== aDivision) {
-      return bDivision - aDivision;
-    }
-
-    return (b.lp || 0) - (a.lp || 0);
-  });
-
-  // Añadimos posición
-  const classification = results.map((player, index) => ({
-    position: index + 1,
-    ...player,
-  }));
-
-  return NextResponse.json({
-    success: true,
-    updatedAt: new Date().toISOString(),
-    players: classification,
-  });
+    return NextResponse.json({ success: true, players: results });
+  } catch (error) {
+    console.error("Riot API error:", error);
+    return NextResponse.json(
+      { success: false, players: [], error: "No se pudo consultar Riot API" },
+      { status: 500 }
+    );
+  }
 }
