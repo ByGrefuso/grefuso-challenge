@@ -16,9 +16,10 @@ const STREAMERS = [
   { channel: "marcsuarezdp", displayName: "MARCCALVO" },
 ] as const;
 
-async function getToken() {
+async function getTwitchToken() {
   const clientId = process.env.TWITCH_CLIENT_ID;
   const clientSecret = process.env.TWITCH_CLIENT_SECRET;
+
   if (!clientId || !clientSecret) {
     throw new Error("Faltan TWITCH_CLIENT_ID o TWITCH_CLIENT_SECRET");
   }
@@ -46,62 +47,76 @@ export async function GET() {
     const clientId = process.env.TWITCH_CLIENT_ID;
     if (!clientId) throw new Error("Falta TWITCH_CLIENT_ID");
 
-    const { access_token } = await getToken();
+    const { access_token } = await getTwitchToken();
+
     const headers = {
       "Client-ID": clientId,
       Authorization: `Bearer ${access_token}`,
     };
 
-    const usersQuery = STREAMERS
-      .map((s) => `login=${encodeURIComponent(s.channel)}`)
-      .join("&");
+    const userParams = new URLSearchParams();
+    const streamParams = new URLSearchParams();
 
-    const streamsQuery = STREAMERS
-      .map((s) => `user_login=${encodeURIComponent(s.channel)}`)
-      .join("&");
+    for (const streamer of STREAMERS) {
+      userParams.append("login", streamer.channel);
+      streamParams.append("user_login", streamer.channel);
+    }
 
     const [usersResponse, streamsResponse] = await Promise.all([
-      fetch(`https://api.twitch.tv/helix/users?${usersQuery}`, {
+      fetch(`https://api.twitch.tv/helix/users?${userParams.toString()}`, {
         headers,
         cache: "no-store",
       }),
-      fetch(`https://api.twitch.tv/helix/streams?first=100&${streamsQuery}`, {
-        headers,
-        cache: "no-store",
-      }),
+      fetch(
+        `https://api.twitch.tv/helix/streams?first=100&${streamParams.toString()}`,
+        { headers, cache: "no-store" }
+      ),
     ]);
 
     if (!usersResponse.ok) {
-      throw new Error(`Twitch users ${usersResponse.status}: ${await usersResponse.text()}`);
-    }
-    if (!streamsResponse.ok) {
-      throw new Error(`Twitch streams ${streamsResponse.status}: ${await streamsResponse.text()}`);
-    }
-
-    const users = (await usersResponse.json()).data ?? [];
-    const live = (await streamsResponse.json()).data ?? [];
-
-    const streams = STREAMERS.map((config) => {
-      const user = users.find(
-        (u: any) => u.login?.toLowerCase() === config.channel.toLowerCase()
+      throw new Error(
+        `Twitch users ${usersResponse.status}: ${await usersResponse.text()}`
       );
-      const stream = live.find(
-        (s: any) => s.user_login?.toLowerCase() === config.channel.toLowerCase()
+    }
+
+    if (!streamsResponse.ok) {
+      throw new Error(
+        `Twitch streams ${streamsResponse.status}: ${await streamsResponse.text()}`
+      );
+    }
+
+    const usersJson = await usersResponse.json();
+    const streamsJson = await streamsResponse.json();
+
+    const users = usersJson.data ?? [];
+    const liveStreams = streamsJson.data ?? [];
+
+    const streams = STREAMERS.map((streamer) => {
+      const user = users.find(
+        (u: any) =>
+          String(u.login).toLowerCase() === streamer.channel.toLowerCase()
+      );
+
+      const live = liveStreams.find(
+        (s: any) =>
+          String(s.user_login).toLowerCase() === streamer.channel.toLowerCase()
       );
 
       return {
-        channel: config.channel,
-        displayName: user?.display_name ?? config.displayName,
+        channel: streamer.channel,
+        displayName: user?.display_name ?? streamer.displayName,
         avatar: user?.profile_image_url ?? "",
-        live: Boolean(stream),
-        title: stream?.title ?? "",
-        game: stream?.game_name ?? "",
-        viewers: stream?.viewer_count ?? 0,
-        thumbnail: stream?.thumbnail_url
-          ? stream.thumbnail_url.replace("{width}", "640").replace("{height}", "360")
+        live: Boolean(live),
+        title: live?.title ?? "",
+        game: live?.game_name ?? "",
+        viewers: live?.viewer_count ?? 0,
+        thumbnail: live?.thumbnail_url
+          ? live.thumbnail_url
+              .replace("{width}", "640")
+              .replace("{height}", "360")
           : "",
-        startedAt: stream?.started_at ?? null,
-        url: `https://www.twitch.tv/${config.channel}`,
+        startedAt: live?.started_at ?? null,
+        url: `https://www.twitch.tv/${streamer.channel}`,
       };
     });
 
@@ -111,6 +126,7 @@ export async function GET() {
     );
   } catch (error) {
     console.error("Twitch API error:", error);
+
     return NextResponse.json(
       {
         success: false,
