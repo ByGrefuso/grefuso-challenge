@@ -1,90 +1,59 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const PARTICIPANTS = [
-  { name: "Kiwix", riotId: "ENJ#RAGE" },
-  { name: "marccalvo", riotId: "Dolan#RCD" },
-  { name: "Fardos31", riotId: "Myrwn#0031" },
-  { name: "Yuuki26", riotId: "palladinni#EUW" },
-  { name: "Delacasa95", riotId: "grakulaq#EUW" },
-  { name: "Bounjimi", riotId: "xokas the boss#005" },
-  { name: "OreWaRuo", riotId: "Sukehir0 Yami#Zoro" },
-  { name: "cris", riotId: "Calm Smurf#EUW" },
-  { name: "Sallanman", riotId: "Lo Narisut#1492" },
-  { name: "ByGrefuso", riotId: "tinaJJ#6700" },
-  { name: "Kawinho15", riotId: "GodzOclock#EUW" },
-  { name: "Al3", riotId: "laaw Traafalgar#EUW" },
+  { name: "KIWIX", riotId: "Nissaxter ENJ#RAGE" },
+  { name: "MARCCALVO", riotId: "Tyrhys Dolan#RCD" },
+  { name: "FARDOS31", riotId: "Myrwn#0031" },
+  { name: "YUKI26", riotId: "palladinni#EUW" },
+  { name: "DELACASA95", riotId: "grakulaq#EUW" },
+  { name: "BOUNJIMI", riotId: "xokas the boss #005" },
+  { name: "OREWARUO", riotId: "Sukehir0 Yami#Zoro" },
+  { name: "CRIS", riotId: "Calm Smurf#EUW" },
+  { name: "SALLANMAN", riotId: "Lo Narisut#1492" },
+  { name: "BYGREFUSO", riotId: "tinaJJ#6700" },
+  { name: "KAWINHO15", riotId: "GodzOclock#EUW" },
+  { name: "AL3", riotId: "laaw Traafalgar#EUW" },
 ] as const;
 
-const ACCOUNT_REGION = "europe";
-const PLATFORM = "euw1";
-
-function riotHeaders() {
-  const key = process.env.RIOT_API_KEY;
-  if (!key) throw new Error("Falta RIOT_API_KEY en .env.local");
-  return { "X-Riot-Token": key };
-}
-
-async function riotFetch(url: string) {
-  const response = await fetch(url, {
-    headers: riotHeaders(),
-    cache: "no-store",
-  });
-  if (!response.ok) throw new Error(`Riot ${response.status}`);
-  return response.json();
+function splitRiotId(riotId: string) {
+  const index = riotId.lastIndexOf("#");
+  if (index === -1) return { gameName: riotId, tagLine: "" };
+  return {
+    gameName: riotId.slice(0, index),
+    tagLine: riotId.slice(index + 1),
+  };
 }
 
 export async function GET() {
-  try {
-    const results = await Promise.all(
-      PARTICIPANTS.map(async (participant) => {
-        const [gameName, tagLine] = participant.riotId.split("#");
+  const apiKey = process.env.RIOT_API_KEY;
 
-        try {
-          const account = await riotFetch(
-            `https://${ACCOUNT_REGION}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`
-          );
+  if (!apiKey) {
+    return NextResponse.json(
+      { success: false, error: "Falta RIOT_API_KEY en .env.local", players: [] },
+      { status: 500 }
+    );
+  }
 
-          const summoner = await riotFetch(
-            `https://${PLATFORM}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${encodeURIComponent(account.puuid)}`
-          );
+  const players = await Promise.all(
+    PARTICIPANTS.map(async (participant) => {
+      try {
+        const { gameName, tagLine } = splitRiotId(participant.riotId);
 
-          const entries = await riotFetch(
-            `https://${PLATFORM}.api.riotgames.com/lol/league/v4/entries/by-summoner/${encodeURIComponent(summoner.id)}`
-          );
-
-          const soloQ = Array.isArray(entries)
-            ? entries.find((entry: any) => entry.queueType === "RANKED_SOLO_5x5")
-            : null;
-
-          if (!soloQ) {
-            return {
-              name: participant.name,
-              riotId: participant.riotId,
-              tier: "UNRANKED",
-              rank: "",
-              lp: 0,
-              wins: 0,
-              losses: 0,
-              icon: summoner.profileIconId
-                ? `https://ddragon.leagueoflegends.com/cdn/15.17.1/img/profileicon/${summoner.profileIconId}.png`
-                : undefined,
-            };
+        // Riot Account-v1: EUW routing for EUW accounts.
+        const accountResponse = await fetch(
+          `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(
+            gameName
+          )}/${encodeURIComponent(tagLine)}`,
+          {
+            headers: { "X-Riot-Token": apiKey },
+            cache: "no-store",
           }
+        );
 
-          return {
-            name: participant.name,
-            riotId: participant.riotId,
-            tier: String(soloQ.tier || "UNRANKED"),
-            rank: String(soloQ.rank || ""),
-            lp: Number(soloQ.leaguePoints || 0),
-            wins: Number(soloQ.wins || 0),
-            losses: Number(soloQ.losses || 0),
-            icon: summoner.profileIconId
-              ? `https://ddragon.leagueoflegends.com/cdn/15.17.1/img/profileicon/${summoner.profileIconId}.png`
-              : undefined,
-          };
-        } catch (error) {
-          console.error(`Error Riot ${participant.riotId}:`, error);
+        if (!accountResponse.ok) {
           return {
             name: participant.name,
             riotId: participant.riotId,
@@ -95,15 +64,72 @@ export async function GET() {
             losses: 0,
           };
         }
-      })
-    );
 
-    return NextResponse.json({ success: true, players: results });
-  } catch (error) {
-    console.error("Riot API error:", error);
-    return NextResponse.json(
-      { success: false, players: [], error: "No se pudo consultar Riot API" },
-      { status: 500 }
-    );
-  }
+        const account = await accountResponse.json();
+
+        const summonerResponse = await fetch(
+          `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${encodeURIComponent(
+            account.puuid
+          )}`,
+          {
+            headers: { "X-Riot-Token": apiKey },
+            cache: "no-store",
+          }
+        );
+
+        if (!summonerResponse.ok) {
+          return {
+            name: participant.name,
+            riotId: participant.riotId,
+            tier: "UNRANKED",
+            rank: "",
+            lp: 0,
+            wins: 0,
+            losses: 0,
+          };
+        }
+
+        const summoner = await summonerResponse.json();
+
+        const rankedResponse = await fetch(
+          `https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/${encodeURIComponent(
+            summoner.id
+          )}`,
+          {
+            headers: { "X-Riot-Token": apiKey },
+            cache: "no-store",
+          }
+        );
+
+        const entries = rankedResponse.ok ? await rankedResponse.json() : [];
+        const solo = entries.find((entry: any) => entry.queueType === "RANKED_SOLO_5x5");
+
+        return {
+          name: participant.name,
+          riotId: participant.riotId,
+          tier: solo?.tier ?? "UNRANKED",
+          rank: solo?.rank ?? "",
+          lp: solo?.leaguePoints ?? 0,
+          wins: solo?.wins ?? 0,
+          losses: solo?.losses ?? 0,
+        };
+      } catch (error) {
+        console.error(`Riot error for ${participant.name}:`, error);
+        return {
+          name: participant.name,
+          riotId: participant.riotId,
+          tier: "UNRANKED",
+          rank: "",
+          lp: 0,
+          wins: 0,
+          losses: 0,
+        };
+      }
+    })
+  );
+
+  return NextResponse.json(
+    { success: true, players },
+    { headers: { "Cache-Control": "no-store, max-age=0" } }
+  );
 }
