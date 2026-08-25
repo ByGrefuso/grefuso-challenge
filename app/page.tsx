@@ -1,242 +1,2365 @@
- "use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 
-type Player = {
+type Streamer = {
+  channel: string;
+  displayName: string;
+  avatar: string;
+  live: boolean;
+  title: string;
+  game: string;
+  viewers: number;
+  thumbnail: string;
+  startedAt: string | null;
+  url: string;
+};
+
+type RiotPlayer = {
   name: string;
-  riotId: string;
-  tagLine: string;
-  tier: string | null;
-  rank: string | null;
-  lp: number | null;
-  error?: string | null;
+  rank: string;
+  tier: string;
+  lp: number;
+  wins: number;
+  losses: number;
+  icon?: string;
 };
 
-const PLAYERS = [
-  ["Kiwix", "ENJ#RAGE"],
-  ["marccalvo", "Dolan#RCD"],
-  ["Fardos31", "Myrwn#0031"],
-  ["Yuuki26", "palladinni#EUW"],
-  ["Delacasa95", "grakulaq#EUW"],
-  ["Bounjimi", "xokas the boss#005"],
-  ["OreWaRuo", "Sukehir0 Yami#Zoro"],
-  ["cris", "Calm Smurf#EUW"],
-  ["Sallanman", "Lo Narisut#1492"],
-  ["ByGrefuso", "tinaJJ#6700"],
-  ["Kawinho15", "GodzOclock#EUW"],
-  ["Al3", "laaw Traafalgar#EUW"],
-] as const;
+const STREAMER_ORDER = [
+  "bygrefuso",
+  "crisblade04",
+  "yuuki26_",
+  "sallanman_cat",
+  "orewarulo",
+  "fardos_31",
+  "delakelly",
+  "euwthe4l3",
+  "kawinho15_",
+];
 
-const STREAMS = [
-  ["ByGrefuso", "bygrefuso", "STRM"],
-  ["Kawinho15", "kawinho15_", "STRM"],
-  ["Al3", "euwthe4l3", "STRM"],
-  ["Yuuki26", "yuuki26_", "STRM"],
-  ["Sallanman", "sallanman", "PRO"],
-] as const;
-
-const TIER_VALUE: Record<string, number> = {
-  IRON: 1, BRONZE: 2, SILVER: 3, GOLD: 4, PLATINUM: 5,
-  EMERALD: 6, DIAMOND: 7, MASTER: 8, GRANDMASTER: 9, CHALLENGER: 10,
+const streamerLabels: Record<string, "STREAM" | "PRO"> = {
+  bygrefuso: "STREAM",
+  crisblade04: "STREAM",
+  yuuki26_: "STREAM",
+  sallanman_cat: "PRO",
+  orewarulo: "STREAM",
+  fardos_31: "STREAM",
+  delakelly: "STREAM",
+  euwthe4l3: "STREAM",
+  kawinho15_: "STREAM",
 };
-const DIV_VALUE: Record<string, number> = { IV: 1, III: 2, II: 3, I: 4 };
+
+const PARTICIPANTS = [
+  { name: "Kiwix", riotId: "ENJ#RAGE", stream: null, label: "PARTICIPANTE" },
+  { name: "marccalvo", riotId: "Dolan#RCD", stream: null, label: "PARTICIPANTE" },
+  { name: "Fardos31", riotId: "Myrwn#0031", stream: "fardos_31", label: "STREAM" },
+  { name: "Yuuki26", riotId: "palladinni#EUW", stream: "yuuki26_", label: "STREAM" },
+  { name: "Delacasa95", riotId: "grakulaq#EUW", stream: "delakelly", label: "STREAM" },
+  { name: "Bounjimi", riotId: "xokas the boss#005", stream: null, label: "PARTICIPANTE" },
+  { name: "OreWaRuo", riotId: "Sukehir0 Yami#Zoro", stream: "orewarulo", label: "STREAM" },
+  { name: "cris", riotId: "Calm Smurf#EUW", stream: "crisblade04", label: "STREAM" },
+  { name: "Sallanman", riotId: "Lo Narisut#1492", stream: "sallanman_cat", label: "PRO" },
+  { name: "ByGrefuso", riotId: "tinaJJ#6700", stream: "bygrefuso", label: "STREAM" },
+  { name: "Kawinho15", riotId: "GodzOclock#EUW", stream: "kawinho15_", label: "STREAM" },
+  { name: "Al3", riotId: "laaw Traafalgar#EUW", stream: "euwthe4l3", label: "STREAM" },
+] as const;
+
+const RIOT_OPGG: Record<string, string> = Object.fromEntries(
+  PARTICIPANTS.map((p) => [
+    p.name,
+    `https://op.gg/lol/summoners/euw/${encodeURIComponent(p.riotId.split("#")[0])}-${encodeURIComponent(p.riotId.split("#")[1])}`,
+  ])
+);
+
+function getOpggUrl(player: RiotPlayer) {
+  return RIOT_OPGG[player.name] || `https://op.gg/lol/summoners/euw/${encodeURIComponent(player.name)}`;
+}
+
+const FAQS = [
+  {
+    question: "¿Cuántas partidas puedo jugar al día?",
+    answer:
+      "Puedes jugar hasta 5 partidas de SoloQ al día. Si eres streamer y estás retransmitiendo, puedes jugar hasta 7 partidas: 5 normales + 2 partidas extra.",
+  },
+  {
+    question: "¿Las partidas que no juego se acumulan para otro día?",
+    answer:
+      "Sí. Las partidas son acumulables. Por ejemplo, si un día juegas solo 1 partida, te quedan 4 pendientes. Al día siguiente podrás jugar tus 5 partidas del día + las 4 acumuladas, es decir, 9 partidas.",
+  },
+  {
+    question: "¿Los streamers tienen partidas adicionales?",
+    answer:
+      "Sí. Los participantes que hagan stream pueden jugar 2 partidas adicionales al día, siempre que estén retransmitiendo durante esas partidas. La organización podrá solicitar pruebas del directo.",
+  },
+  {
+    question: "¿Tengo que jugar obligatoriamente SoloQ?",
+    answer:
+      "Sí. El Challenge es exclusivamente SoloQ. No cuentan partidas de DuoQ.",
+  },
+  {
+    question: "¿Puedo jugar con otro participante?",
+    answer:
+      "No para obtener ventaja. Cada jugador debe competir individualmente y no está permitido coordinar partidas para obtener ventaja.",
+  },
+  {
+    question: "¿Puedo cambiarme de posición?",
+    answer:
+      "Sí, salvo los jugadores que comiencen el Challenge en Diamante o superior, que deberán jugar obligatoriamente una posición que no sea su posición principal.",
+  },
+  {
+    question: "¿Puedo utilizar mi OTP?",
+    answer:
+      "Los jugadores que comiencen el Challenge en Diamante o superior no podrán utilizar su OTP o campeón principal de especialización.",
+  },
+  {
+    question: "¿Qué pasa si me banean la cuenta?",
+    answer:
+      "La cuenta es responsabilidad del participante. Si Riot aplica una sanción que impide continuar jugando, no habrá partidas adicionales, compensaciones ni ampliación del tiempo.",
+  },
+  {
+    question: "¿Qué pasa si supero el límite de partidas?",
+    answer:
+      "Las partidas que superen las partidas disponibles no contarán para el Challenge.",
+  },
+  {
+    question: "¿Hasta cuándo puedo jugar?",
+    answer:
+      "El Challenge termina el martes 15 de septiembre a las 23:59. Ese día se podrán jugar todas las partidas que correspondan. Las partidas iniciadas antes de las 23:59 podrán terminarse aunque finalicen después.",
+  },
+  {
+    question: "¿Cómo se decide el ganador?",
+    answer:
+      "Ganará el participante que termine primero en la clasificación. La clasificación tendrá en cuenta únicamente el rango y los LP obtenidos.",
+  },
+  {
+    question: "¿Puede la organización revisar mis partidas?",
+    answer:
+      "Sí. La organización puede revisar historiales, posiciones, campeones, estadísticas, streams e infracciones para comprobar que se cumplen las normas.",
+  },
+  {
+    question: "¿Qué pasa si alguien incumple las normas?",
+    answer:
+      "La organización puede anular partidas y aplicar sanciones dentro del Challenge. La decisión final corresponde a la organización.",
+  },
+  {
+    question: "¿Quién organiza el Grefuso Challenge?",
+    answer:
+      "El evento está organizado por ByGrefuso.",
+  },
+];
 
 const RULES = [
-  ["01", "LÍMITE DE PARTIDAS", <>Máximo <b>5 partidas de SoloQ al día</b>. Las partidas que superen el límite diario no contarán.<br /><br /><b>ÚLTIMO DÍA — 15 DE SEPTIEMBRE:</b> se podrán jugar todas las partidas que se quieran hasta las 23:59. Las partidas iniciadas antes de las 23:59 podrán terminarse aunque acaben después.</>],
-  ["02", "BONUS STREAMERS", <>Los participantes que hagan <b>STREAM</b> podrán jugar <b>7 PARTIDAS AL DÍA</b>: 5 normales + 2 EXTRA. Para utilizar las 2 extra deberán estar retransmitiendo. La organización podrá solicitar pruebas del directo.</>],
-  ["03", "SOLOQ OBLIGATORIA", <>El Challenge es exclusivamente <b>SOLOQ</b>.<br /><br />❌ Nada de DuoQ.<br />❌ Nada de recibir ayuda de otros participantes.<br />❌ Nada de coordinar partidas para obtener ventaja.<br /><br />Cada jugador compite individualmente.</>],
-  ["04", "CUENTA PERSONAL", <>Cada participante deberá jugar personalmente en su propia cuenta.<br /><br />❌ Compartir cuentas.<br />❌ Que otra persona juegue por ti.<br />❌ Boosting.<br />❌ Comprar servicios para subir.<br />❌ Permitir que otra persona juegue en tu nombre.<br /><br /><b>LA CUENTA ES TUYA. LAS PARTIDAS LAS JUEGAS TÚ.</b></>],
-  ["05", "CÓDIGO DE CONDUCTA DE RIOT", <>Todos los participantes deberán respetar las normas de Riot Games y el Código de Conducta de League of Legends.<br /><br />❌ Toxicidad · ❌ Insultos / acoso · ❌ Uso inapropiado del chat · ❌ AFK · ❌ Inting · ❌ Griefing · ❌ Perder deliberadamente.<br /><br /><b>SI RIOT TE Banea POR TU COMPORTAMIENTO: TE JODES.</b><br /><br />La organización no será responsable de una sanción de Riot. No habrá partidas adicionales, compensaciones ni ampliación de tiempo.</>],
-  ["06", "REGLA HIGH ELO — DIAMANTE+", <>Los jugadores que comiencen el Challenge en <b>DIAMANTE o superior</b> tendrán una dificultad adicional.<br /><br /><b>POSICIÓN NO MAIN:</b> deberán jugar obligatoriamente en una posición que NO sea su posición principal.<br /><br /><b>OTP PROHIBIDO:</b> no podrán utilizar su OTP o campeón principal.<br /><br /><b>SUPERVISIÓN:</b> la organización podrá revisar historial, posiciones, campeones, rendimiento e intentos de esquivar la norma.</>],
-  ["07", "FINAL DEL CHALLENGE", <><b>MARTES 15 DE SEPTIEMBRE — 23:59.</b><br /><br />A esta hora finalizará oficialmente el Grefuso Challenge. El ganador será el jugador que termine en primera posición según el sistema de puntuación establecido.<br /><br /><b>SOLO UNO SERÁ CAMPEÓN.</b></>],
-  ["08", "ORGANIZACIÓN", <>La organización podrá revisar partidas, comprobar streams, revisar estadísticas, investigar infracciones, anular partidas, aplicar sanciones y resolver situaciones no contempladas.<br /><br />En cualquier situación no prevista, la decisión final corresponderá a la organización.</>],
-] as const;
+  {
+    number: "01",
+    title: "LÍMITE DE PARTIDAS",
+    icon: "🎮",
+    content: (
+      <>
+        <p>
+          Máximo <strong>5 partidas de SoloQ al día</strong>.
+        </p>
 
-const FAQ = [
-  ["¿CUÁNTAS PARTIDAS PUEDO JUGAR AL DÍA?", "Máximo 5 partidas de SoloQ al día. Si estás haciendo stream, puedes jugar 2 partidas EXTRA y llegar a 7."],
-  ["¿LAS PARTIDAS SON ACUMULABLES?", "SÍ. Las partidas que no juegues se acumulan. Por ejemplo, si hoy juegas solo 1 partida, mañana podrás jugar 9: las 4 que te faltaban + las 5 del nuevo día."],
-  ["¿LAS PARTIDAS EXTRA DE STREAM TAMBIÉN SE ACUMULAN?", "SÍ. Las partidas disponibles que no hayas utilizado se pueden acumular según las condiciones del Challenge. Las 2 extra requieren estar retransmitiendo para utilizarlas."],
-  ["¿PUEDO JUGAR DUOQ?", "NO. El Challenge es exclusivamente SoloQ."],
-  ["¿QUÉ CUENTA PARA LA CLASIFICACIÓN?", "Únicamente el rango de SoloQ y los LP actuales. Los datos se obtienen mediante la Riot API."],
-  ["¿CUENTAN LAS VICTORIAS Y DERROTAS POR SEPARADO?", "No. La clasificación utiliza rango y LP."],
-  ["¿QUÉ SIGNIFICA UNRANKED?", "Significa que Riot no devuelve una clasificación de SoloQ para esa cuenta."],
-  ["¿QUÉ SIGNIFICA ERROR API?", "Es un problema al consultar Riot. No significa que el jugador esté sin rango."],
-  ["¿QUÉ PASA SI ME BANEAN?", "La cuenta y el comportamiento del jugador son responsabilidad del participante. Una sanción de Riot no da derecho a partidas adicionales, compensaciones ni ampliación de tiempo."],
-  ["¿CUÁNDO TERMINA?", "El martes 15 de septiembre a las 23:59. Las partidas iniciadas antes de esa hora podrán terminarse."],
-  ["¿QUIÉN ES EL ORGANIZADOR?", "BYGREFUSO."],
-] as const;
+        <p>
+          Las partidas que superen el límite diario no contarán.
+        </p>
 
-function opggUrl(p: Player) {
-  return `https://op.gg/lol/summoners/euw/${encodeURIComponent(p.riotId)}-${encodeURIComponent(p.tagLine)}`;
+        <div className="rule-highlight">
+          <strong>🔥 ÚLTIMO DÍA — 15 DE SEPTIEMBRE</strong>
+          <p>
+            Se podrán jugar TODAS las partidas que se quieran hasta las
+            23:59.
+          </p>
+          <p>
+            Las partidas iniciadas antes de las 23:59 podrán terminarse aunque
+            acaben después.
+          </p>
+        </div>
+      </>
+    ),
+  },
+  {
+    number: "02",
+    title: "BONUS STREAMERS",
+    icon: "🔴",
+    content: (
+      <>
+        <p>Los participantes que hagan STREAM podrán jugar:</p>
+
+        <div className="big-rule-number">7 PARTIDAS AL DÍA</div>
+
+        <p>5 partidas normales + 2 partidas EXTRA.</p>
+
+        <div className="rule-highlight">
+          <strong>🎥 PARA UTILIZAR LAS 2 PARTIDAS EXTRA</strong>
+          <p>
+            El participante deberá estar retransmitiendo.
+          </p>
+          <p>
+            La organización podrá solicitar pruebas del directo.
+          </p>
+        </div>
+      </>
+    ),
+  },
+  {
+    number: "03",
+    title: "SOLOQ OBLIGATORIA",
+    icon: "🚫",
+    content: (
+      <>
+        <p>El Challenge es exclusivamente SOLOQ.</p>
+
+        <ul>
+          <li>❌ Nada de DuoQ.</li>
+          <li>❌ Nada de recibir ayuda de otros participantes.</li>
+          <li>
+            ❌ Nada de coordinar partidas para obtener ventaja.
+          </li>
+        </ul>
+
+        <p>
+          <strong>Cada jugador compite individualmente.</strong>
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "04",
+    title: "CUENTA PERSONAL",
+    icon: "🔐",
+    content: (
+      <>
+        <p>
+          Cada participante deberá jugar personalmente en su propia cuenta.
+        </p>
+
+        <ul>
+          <li>❌ Compartir cuentas.</li>
+          <li>❌ Que otra persona juegue por ti.</li>
+          <li>❌ Boosting.</li>
+          <li>❌ Comprar servicios para subir.</li>
+          <li>
+            ❌ Permitir que otra persona juegue en tu nombre.
+          </li>
+        </ul>
+
+        <div className="rule-highlight strong-message">
+          👉 LA CUENTA ES TUYA. LAS PARTIDAS LAS JUEGAS TÚ.
+        </div>
+      </>
+    ),
+  },
+  {
+    number: "05",
+    title: "CÓDIGO DE CONDUCTA DE RIOT",
+    icon: "🛡️",
+    content: (
+      <>
+        <p>
+          Todos los participantes deberán respetar las normas de Riot Games y
+          el Código de Conducta de League of Legends.
+        </p>
+
+        <ul>
+          <li>❌ Toxicidad</li>
+          <li>❌ Insultos / acoso</li>
+          <li>❌ Uso inapropiado del chat</li>
+          <li>❌ AFK / abandonar partidas</li>
+          <li>❌ Inting o sabotaje</li>
+          <li>❌ Griefing</li>
+          <li>❌ Perder deliberadamente</li>
+          <li>❌ Cualquier conducta sancionable por Riot</li>
+        </ul>
+
+        <div className="ban-box">
+          <strong>🚨 SI RIOT TE Banea POR TU COMPORTAMIENTO:</strong>
+
+          <div className="ban-title">💀 TE JODES.</div>
+
+          <p>
+            Si recibes una sanción de Riot que te impide continuar jugando por
+            incumplir sus normas, la organización NO será responsable.
+          </p>
+
+          <ul>
+            <li>❌ No habrá partidas adicionales.</li>
+            <li>❌ No habrá compensaciones.</li>
+            <li>❌ No se ampliará tu tiempo.</li>
+          </ul>
+
+          <strong>👉 TU CUENTA → TU RESPONSABILIDAD.</strong>
+        </div>
+      </>
+    ),
+  },
+  {
+    number: "06",
+    title: "REGLA HIGH ELO — DIAMANTE+",
+    icon: "💎",
+    content: (
+      <>
+        <p>
+          Los jugadores que comiencen el Challenge en{" "}
+          <strong>DIAMANTE o superior</strong> tendrán una dificultad
+          adicional.
+        </p>
+
+        <div className="rule-subtitle">🔄 POSICIÓN NO MAIN</div>
+
+        <p>
+          Deberán jugar obligatoriamente en una posición que NO sea su
+          posición principal.
+        </p>
+
+        <div className="rule-subtitle">🚫 OTP PROHIBIDO</div>
+
+        <p>
+          No podrán utilizar su OTP o campeón principal de especialización.
+        </p>
+
+        <div className="rule-subtitle">👁️ SUPERVISIÓN</div>
+
+        <p>
+          El responsable del Grefuso Challenge supervisará el cumplimiento de
+          esta norma.
+        </p>
+
+        <p>Se podrá revisar:</p>
+
+        <ul>
+          <li>Historial de partidas</li>
+          <li>Posiciones jugadas</li>
+          <li>Campeones utilizados</li>
+          <li>Rendimiento</li>
+          <li>Intentos de esquivar la norma</li>
+        </ul>
+
+        <p>
+          La posición MAIN y los campeones considerados OTP serán determinados
+          por la organización según el historial reciente del jugador.
+        </p>
+
+        <div className="rule-highlight">
+          <strong>⚠️ INCUMPLIMIENTO</strong>
+          <p>
+            Las partidas afectadas podrán ser anuladas y/o se podrá aplicar
+            una sanción dentro del Challenge.
+          </p>
+          <p>
+            🛑 La decisión final corresponde al responsable del evento.
+          </p>
+        </div>
+      </>
+    ),
+  },
+  {
+    number: "07",
+    title: "FINAL DEL CHALLENGE",
+    icon: "🏁",
+    content: (
+      <>
+        <div className="final-date">
+          <strong>📅 MARTES 15 DE SEPTIEMBRE</strong>
+          <span>⏰ 23:59</span>
+        </div>
+
+        <p>
+          A esta hora finalizará oficialmente el Grefuso Challenge.
+        </p>
+
+        <p>
+          🏆 El ganador será el jugador que termine en la primera posición de
+          la clasificación según el sistema de puntuación establecido.
+        </p>
+
+        <div className="champion-message">
+          👑 SOLO UNO SERÁ CAMPEÓN.
+        </div>
+      </>
+    ),
+  },
+  {
+    number: "08",
+    title: "ORGANIZACIÓN",
+    icon: "⚖️",
+    content: (
+      <>
+        <p>La organización podrá:</p>
+
+        <ul>
+          <li>🔎 Revisar partidas</li>
+          <li>📺 Comprobar streams</li>
+          <li>📊 Revisar estadísticas</li>
+          <li>🛡️ Investigar infracciones</li>
+          <li>⚠️ Anular partidas</li>
+          <li>🚨 Aplicar sanciones</li>
+          <li>📜 Resolver situaciones no contempladas</li>
+        </ul>
+
+        <p>
+          En cualquier situación no prevista, la decisión final corresponderá
+          a la organización.
+        </p>
+      </>
+    ),
+  },
+];
+
+function formatViewers(viewers: number) {
+  return new Intl.NumberFormat("es-ES").format(viewers);
 }
 
-function rankLabel(p: Player) {
-  if (p.error) return "ERROR API";
-  if (!p.tier) return "UNRANKED";
-  return `${p.tier}${p.rank ? ` ${p.rank}` : ""}`;
+function getCountdown() {
+  const target = new Date("2026-08-28T20:00:00+02:00").getTime();
+  const now = Date.now();
+  const difference = Math.max(0, target - now);
+
+  const days = Math.floor(difference / 86400000);
+  const hours = Math.floor((difference / 3600000) % 24);
+  const minutes = Math.floor((difference / 60000) % 60);
+  const seconds = Math.floor((difference / 1000) % 60);
+
+  return { days, hours, minutes, seconds };
 }
 
-export default function Page() {
-  const [ranking, setRanking] = useState<Player[]>([]);
-  const [apiError, setApiError] = useState(false);
-  const [updated, setUpdated] = useState("");
+function rankValue(tier: string, rank: string) {
+  const tiers: Record<string, number> = {
+    HIERRO: 1,
+    BRONCE: 2,
+    PLATA: 3,
+    ORO: 4,
+    PLATINO: 5,
+    ESMERALDA: 6,
+    DIAMANTE: 7,
+    MAESTRO: 8,
+    GRAN_MAESTRO: 9,
+    CHALLENGER: 10,
+  };
 
-  useEffect(() => {
-    let active = true;
-
-    const load = async () => {
-      try {
-        const response = await fetch("/api/riot", { cache: "no-store" });
-        const data = await response.json();
-        if (!active) return;
-        if (!response.ok || !Array.isArray(data.players)) {
-          setApiError(true);
-          return;
-        }
-        setRanking(data.players);
-        setApiError(false);
-        setUpdated(new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }));
-      } catch {
-        if (active) setApiError(true);
-      }
-    };
-
-    load();
-    const interval = setInterval(load, 60_000);
-    return () => {
-      active = false;
-      clearInterval(interval);
-    };
-  }, []);
-
-  const ordered = useMemo(() => {
-    return [...ranking]
-      .sort((a, b) => {
-        const tier = (TIER_VALUE[b.tier || ""] || 0) - (TIER_VALUE[a.tier || ""] || 0);
-        if (tier) return tier;
-        const div = (DIV_VALUE[b.rank || ""] || 0) - (DIV_VALUE[a.rank || ""] || 0);
-        if (div) return div;
-        return (b.lp ?? -1) - (a.lp ?? -1);
-      })
-      .map((p, i) => ({ ...p, position: i + 1 }));
-  }, [ranking]);
+  const divisions: Record<string, number> = {
+    IV: 1,
+    III: 2,
+    II: 3,
+    I: 4,
+  };
 
   return (
-    <>
+    (tiers[tier.toUpperCase()] || 0) * 1000 +
+    (divisions[rank.toUpperCase()] || 0) * 100 +
+    0
+  );
+}
+
+export default function Home() {
+  const [streamers, setStreamers] = useState<Streamer[]>([]);
+  const [loadingStreams, setLoadingStreams] = useState(true);
+  const [countdown, setCountdown] = useState(getCountdown());
+
+  /*
+   * Preparado para la Riot API.
+   * Cuando creemos /api/riot, esta lista se rellenará automáticamente.
+   */
+  const [riotPlayers, setRiotPlayers] = useState<RiotPlayer[]>([]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown(getCountdown());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  async function loadStreams() {
+    try {
+      const response = await fetch("/api/twitch", {
+        cache: "no-store",
+      });
+
+      const data = await response.json();
+
+      if (data.success && Array.isArray(data.streams)) {
+        const ordered = [...data.streams].sort(
+          (a: Streamer, b: Streamer) =>
+            STREAMER_ORDER.indexOf(a.channel) -
+            STREAMER_ORDER.indexOf(b.channel)
+        );
+
+        setStreamers(ordered);
+      }
+    } catch (error) {
+      console.error("Error cargando Twitch:", error);
+    } finally {
+      setLoadingStreams(false);
+    }
+  }
+
+  async function loadRiot() {
+    try {
+      const response = await fetch("/api/riot", {
+        cache: "no-store",
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+
+      if (data.success && Array.isArray(data.players)) {
+        setRiotPlayers(data.players);
+      }
+    } catch (error) {
+      /*
+       * No mostramos error en pantalla mientras /api/riot todavía no exista.
+       */
+      console.log("Riot API todavía no disponible.");
+    }
+  }
+
+  useEffect(() => {
+    loadStreams();
+    loadRiot();
+
+    const interval = setInterval(() => {
+      loadStreams();
+      loadRiot();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const mainStreamer = useMemo(() => {
+    const bygrefuso = streamers.find(
+      (streamer) => streamer.channel === "bygrefuso"
+    );
+
+    if (bygrefuso?.live) {
+      return bygrefuso;
+    }
+
+    return streamers.find((streamer) => streamer.live) || bygrefuso || null;
+  }, [streamers]);
+
+  const liveStreamers = streamers.filter((streamer) => streamer.live);
+
+  const sortedPlayers = [...riotPlayers].sort((a, b) => {
+    const aValue =
+      rankValue(a.tier, a.rank) * 10000 + a.lp;
+    const bValue =
+      rankValue(b.tier, b.rank) * 10000 + b.lp;
+
+    return bValue - aValue;
+  });
+
+  return (
+    <main className="challenge-page">
+      <header className="navbar">
+        <a href="/" className="brand">
+          <img src="/logo.png" alt="Grefuso Challenge" />
+        </a>
+
+        <nav>
+          <a href="#inicio">INICIO</a>
+          <a href="#bygrefuso">BYGREFUSO</a>
+          <a href="#clasificacion">CLASIFICACIÓN</a>
+          <a href="#participantes">PARTICIPANTES</a>
+          <a href="#torneo">EL TORNEO</a>
+          <a href="#normas">NORMAS</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+
+        <div className="socials">
+          <a
+            href="https://www.twitch.tv/bygrefuso"
+            target="_blank"
+            rel="noreferrer"
+          >
+            TW
+          </a>
+
+          <a
+            href="https://www.instagram.com/_jordilarosa_/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            IG
+          </a>
+
+          <a
+            href="https://www.twitch.tv/bygrefuso"
+            target="_blank"
+            rel="noreferrer"
+            className="follow-button"
+          >
+            SEGUIR EN TWITCH
+          </a>
+        </div>
+      </header>
+
+      <section id="inicio" className="hero">
+        <div className="hero-left">
+          <img
+            src="/logo.png"
+            alt="Grefuso Challenge"
+            className="hero-logo"
+          />
+
+          <p className="eyebrow">
+            SOLOQ CHALLENGE DE LEAGUE OF LEGENDS
+          </p>
+
+          <div className="date-box">
+            DEL 28 DE AGOSTO AL 15 DE SEPTIEMBRE
+          </div>
+
+          <div className="countdown-title">
+            EL CHALLENGE COMIENZA EN
+          </div>
+
+          <div className="countdown">
+            <div>
+              <strong>{String(countdown.days).padStart(2, "0")}</strong>
+              <span>DÍAS</span>
+            </div>
+
+            <div>
+              <strong>{String(countdown.hours).padStart(2, "0")}</strong>
+              <span>HORAS</span>
+            </div>
+
+            <div>
+              <strong>{String(countdown.minutes).padStart(2, "0")}</strong>
+              <span>MINUTOS</span>
+            </div>
+
+            <div>
+              <strong>{String(countdown.seconds).padStart(2, "0")}</strong>
+              <span>SEGUNDOS</span>
+            </div>
+          </div>
+
+          <p className="start-date">
+            ● VIERNES 28 DE AGOSTO A LAS 20:00
+          </p>
+        </div>
+
+        <div className="hero-stream">
+          <div className="stream-header">
+            <span className="live-dot"></span>
+
+            {mainStreamer?.live ? "EN DIRECTO" : "OFFLINE"}
+
+            <span className="platform">TWITCH</span>
+          </div>
+
+          {mainStreamer?.live ? (
+            <div className="twitch-player">
+              <iframe
+                src={`https://player.twitch.tv/?channel=${mainStreamer.channel}&parent=grefuso-challenge.vercel.app&muted=true`}
+                allowFullScreen
+                title={`Directo de ${mainStreamer.displayName}`}
+              />
+            </div>
+          ) : (
+            <div className="offline-main">
+              <div className="offline-background">
+                <span>GREFUSO</span>
+                <strong>CHALLENGE</strong>
+              </div>
+            </div>
+          )}
+
+          <div className="main-stream-info">
+            <div className="main-avatar">
+              {mainStreamer?.avatar ? (
+                <img
+                  src={mainStreamer.avatar}
+                  alt={mainStreamer.displayName}
+                />
+              ) : (
+                "G"
+              )}
+            </div>
+
+            <div className="main-info-text">
+              <div className="main-name">
+                {mainStreamer?.displayName || "ByGrefuso"}
+
+                {mainStreamer?.channel === "bygrefuso" && (
+                  <span className="verified">✓</span>
+                )}
+
+                {mainStreamer && (
+                  <span className="tag">
+                    {streamerLabels[mainStreamer.channel] || "STREAM"}
+                  </span>
+                )}
+              </div>
+
+              <div className="main-game">
+                {mainStreamer?.game || "League of Legends"}
+              </div>
+            </div>
+
+            {mainStreamer?.live && (
+              <a
+                href={mainStreamer.url}
+                target="_blank"
+                rel="noreferrer"
+                className="watch-button"
+              >
+                VER DIRECTO
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="live-section">
+        <div className="section-heading">
+          <div>
+            <h2>
+              <span className="live-dot"></span>
+              DIRECTOS AHORA
+            </h2>
+
+            <p>
+              {liveStreamers.length > 0
+                ? `${liveStreamers.length} participante${
+                    liveStreamers.length === 1 ? "" : "s"
+                  } en directo`
+                : "Ningún participante está en directo ahora mismo"}
+            </p>
+          </div>
+
+          <a
+            href="https://www.twitch.tv/bygrefuso"
+            target="_blank"
+            rel="noreferrer"
+            className="all-streams"
+          >
+            VER TODOS LOS CANALES →
+          </a>
+        </div>
+
+        <div className="stream-grid">
+          {loadingStreams ? (
+            <div className="loading">
+              Cargando directos...
+            </div>
+          ) : (
+            streamers.map((streamer) => (
+              <StreamerCard
+                key={streamer.channel}
+                streamer={streamer}
+              />
+            ))
+          )}
+        </div>
+      </section>
+
+      <section id="bygrefuso" className="content-section organizer-main-section">
+        <div className="section-heading-large">
+          <span>01</span>
+          <div>
+            <p className="section-kicker">ORGANIZADOR · TWITCH</p>
+            <h2>BYGREFUSO</h2>
+          </div>
+        </div>
+
+        <div className="organizer-main-card">
+          <div className="organizer-main-copy">
+            <span className="organizer-live-dot">●</span>
+            <div>
+              <strong>TWITCH.COM/BYGREFUSO</strong>
+              <p>
+                AQUÍ PODRÁS SEGUIR LOS DIRECTOS DEL ORGANIZADOR Y TODA LA COBERTURA DEL GREFUSO CHALLENGE.
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://www.twitch.tv/bygrefuso"
+            target="_blank"
+            rel="noreferrer"
+            className="watch-button"
+          >
+            VER TWITCH →
+          </a>
+        </div>
+      </section>
+
+      <section id="clasificacion" className="content-section">
+        <div className="section-heading-large">
+          <span>02</span>
+          <div>
+            <p className="section-kicker">RANKING EN DIRECTO · RIOT API</p>
+            <h2>CLASIFICACIÓN</h2>
+          </div>
+        </div>
+
+        <div className="ranking-note">
+          <span>🏆</span>
+          <div>
+            <strong>RANGO + LP = CLASIFICACIÓN</strong>
+            <p>HAZ CLIC EN CUALQUIER JUGADOR PARA ABRIR SU PERFIL EN OP.GG.</p>
+          </div>
+        </div>
+
+        <div className="ranking-box">
+          <div className="ranking-header">
+            <span>#</span>
+            <span>PARTICIPANTE</span>
+            <span>RANGO</span>
+            <span>LP</span>
+          </div>
+
+          {sortedPlayers.length > 0 ? (
+            sortedPlayers.map((player, index) => (
+              <a
+                className="ranking-row ranking-link"
+                key={player.name}
+                href={getOpggUrl(player)}
+                target="_blank"
+                rel="noreferrer"
+                title={`VER OP.GG DE ${player.name}`}
+              >
+                <strong className="position">{index + 1}</strong>
+
+                <div className="ranking-player">
+                  {player.icon && (
+                    <img src={player.icon} alt={player.name} />
+                  )}
+                  <div>
+                    <span>{player.name}</span>
+                    <small>VER OP.GG ↗</small>
+                  </div>
+                </div>
+
+                <span className="rank-name">{player.tier} {player.rank}</span>
+                <strong className="lp">{player.lp} LP</strong>
+              </a>
+            ))
+          ) : (
+            <div className="ranking-empty">
+              <div className="ranking-empty-icon">🏆</div>
+              <h3>CLASIFICACIÓN EN PREPARACIÓN</h3>
+              <p>
+                La clasificación se actualizará automáticamente mediante la Riot API.
+              </p>
+              <span>RANGO + LP</span>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section id="participantes" className="content-section">
+        <div className="section-heading-large">
+          <span>03</span>
+          <div>
+            <p className="section-kicker">LOS 12 PARTICIPANTES</p>
+            <h2>PARTICIPANTES</h2>
+          </div>
+        </div>
+
+        <div className="participants-grid">
+          {PARTICIPANTS.map((participant) => {
+            const streamer = participant.stream
+              ? streamers.find((item) => item.channel === participant.stream)
+              : undefined;
+
+            const content = (
+              <>
+                <div className="participant-avatar">
+                  {streamer?.avatar ? (
+                    <img src={streamer.avatar} alt={participant.name} />
+                  ) : (
+                    <span>{participant.name[0]}</span>
+                  )}
+                </div>
+                <div>
+                  <h3>{participant.name}</h3>
+                  <span>{participant.label}</span>
+                  <small className="participant-riotid">{participant.riotId}</small>
+                </div>
+                {streamer?.live && <b className="participant-live">LIVE</b>}
+              </>
+            );
+
+            return participant.stream ? (
+              <a
+                key={participant.name}
+                href={`https://www.twitch.tv/${participant.stream}`}
+                target="_blank"
+                rel="noreferrer"
+                className="participant-card"
+              >
+                {content}
+              </a>
+            ) : (
+              <div key={participant.name} className="participant-card">
+                {content}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section id="torneo" className="content-section">
+        <div className="section-heading-large">
+          <span>04</span>
+          <div>
+            <p className="section-kicker">GREFUSO CHALLENGE 2026</p>
+            <h2>EL TORNEO</h2>
+          </div>
+        </div>
+
+        <div className="info-grid">
+          <div className="info-card">
+            <span className="info-icon">🏆</span>
+            <h3>UN SOLO CAMPEÓN</h3>
+            <p>
+              Todos compiten individualmente para terminar en la primera
+              posición.
+            </p>
+          </div>
+
+          <div className="info-card">
+            <span className="info-icon">🎮</span>
+            <h3>SOLOQ</h3>
+            <p>
+              El Challenge se juega exclusivamente en partidas clasificatorias
+              SoloQ.
+            </p>
+          </div>
+
+          <div className="info-card">
+            <span className="info-icon">📅</span>
+            <h3>28 AGO — 15 SEP</h3>
+            <p>
+              El Challenge comienza el viernes 28 de agosto y termina el
+              martes 15 de septiembre.
+            </p>
+          </div>
+
+          <div className="info-card">
+            <span className="info-icon">💎</span>
+            <h3>RANGO + LP</h3>
+            <p>
+              La clasificación se ordenará por el rango y los LP de cada
+              participante.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="normas" className="content-section rules-section">
+        <div className="section-heading-large">
+          <span>05</span>
+          <div>
+            <p className="section-kicker">REGLAMENTO OFICIAL</p>
+            <h2>NORMAS</h2>
+          </div>
+        </div>
+
+        <div className="rules-intro">
+          <div>
+            <span>📜</span>
+            <div>
+              <strong>GREFUSO CHALLENGE 2026</strong>
+              <p>
+                Reglamento oficial del Challenge. Todos los participantes
+                deberán conocer y respetar estas normas.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rules-list">
+          {RULES.map((rule) => (
+            <article className="rule-card" key={rule.number}>
+              <div className="rule-top">
+                <span className="rule-number">{rule.number}</span>
+                <span className="rule-icon">{rule.icon}</span>
+
+                <h3>{rule.title}</h3>
+              </div>
+
+              <div className="rule-content">
+                {rule.content}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="organizer-card">
+          <span>👑</span>
+
+          <div>
+            <small>ORGANIZADOR</small>
+            <h3>BYGREFUSO</h3>
+
+            <div className="organizer-links">
+              <a
+                href="https://www.twitch.tv/bygrefuso"
+                target="_blank"
+                rel="noreferrer"
+              >
+                🎮 Twitch
+              </a>
+
+              <a
+                href="https://www.youtube.com/@LoJord1"
+                target="_blank"
+                rel="noreferrer"
+              >
+                ▶️ YouTube
+              </a>
+
+              <a
+                href="https://www.tiktok.com/@lojordi_ndeu"
+                target="_blank"
+                rel="noreferrer"
+              >
+                🎵 TikTok
+              </a>
+
+              <a
+                href="https://www.instagram.com/_jordilarosa_/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                📸 Instagram
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" className="content-section faq-section">
+        <div className="section-heading-large">
+          <span>06</span>
+          <div>
+            <p className="section-kicker">TIENES DUDAS</p>
+            <h2>FAQ</h2>
+          </div>
+        </div>
+
+        <div className="faq-list">
+          {FAQS.map((faq, index) => (
+            <details className="faq-item" key={faq.question}>
+              <summary>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{faq.question}</strong>
+                <b>+</b>
+              </summary>
+
+              <div className="faq-answer">
+                <p>{faq.answer}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <footer>
+        <img src="/logo.png" alt="Grefuso Challenge" />
+
+        <span>
+          GREFUSO CHALLENGE © 2026
+        </span>
+
+        <span>
+          ORGANIZADO POR BYGREFUSO
+        </span>
+      </footer>
+
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
-        *{box-sizing:border-box}
-        html{scroll-behavior:smooth}
-        body{margin:0;background:#070707;color:#fff;font-family:'Space Grotesk',sans-serif;text-transform:uppercase}
-        a{color:inherit;text-decoration:none}
-        .page{min-height:100vh;background:radial-gradient(circle at 50% -5%,rgba(255,79,163,.14),transparent 34%)}
-        .container{width:min(1180px,calc(100% - 32px));margin:auto}
-        .pink{color:#ff4fa3}
-        header{position:sticky;top:0;z-index:20;background:rgba(7,7,7,.9);backdrop-filter:blur(16px);border-bottom:1px solid #252525}
-        .nav{height:72px;display:flex;align-items:center;justify-content:space-between}
-        .logo{font-weight:700;font-size:18px;letter-spacing:-.05em}.logo span{color:#ff4fa3}
-        nav{display:flex;gap:18px;font-size:10px;font-weight:700;color:#999}nav a:hover{color:#ff4fa3}
-        .hero{padding:125px 0 105px;border-bottom:1px solid #242424}
-        .eyebrow{color:#ff4fa3;font-size:10px;font-weight:700;letter-spacing:.18em}
-        h1{font-size:clamp(60px,10vw,135px);line-height:.82;letter-spacing:-.08em;margin:20px 0}
-        h2{font-size:clamp(38px,5vw,68px);line-height:.9;letter-spacing:-.07em;margin:0}
-        .hero p,.intro{color:#8e8e8e;line-height:1.7;text-transform:none}
-        .hero p{max-width:680px;font-size:15px}
-        .buttons{display:flex;gap:10px;margin-top:30px;flex-wrap:wrap}
-        .btn{padding:15px 20px;border:1px solid #333;font-size:10px;font-weight:700}.btn.primary{background:#ff4fa3;color:#070707;border-color:#ff4fa3}
-        section{padding:82px 0;border-bottom:1px solid #242424}
-        .head{display:grid;grid-template-columns:60px 1fr;gap:18px;margin-bottom:34px}.number{color:#ff4fa3;font-size:11px;font-weight:700}
-        .intro{font-size:12px;margin:10px 0 0}
-        .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-        .card{background:#0d0d0d;border:1px solid #292929;padding:22px;min-height:170px;transition:.2s}.card:hover{border-color:#ff4fa3;transform:translateY(-2px)}
-        .top{display:flex;justify-content:space-between}.muted{color:#555;font-size:10px}.tag{border:1px solid #ff4fa3;color:#ff4fa3;font-size:9px;font-weight:700;padding:4px 7px}
-        .card h3{font-size:20px;letter-spacing:-.04em;margin:38px 0 8px}.card p{color:#888;font-size:12px;line-height:1.6;margin:0;text-transform:none}
-        .ranking{border:1px solid #292929;overflow:hidden}
-        .row{display:grid;grid-template-columns:55px 1.7fr 1fr 100px;gap:12px;align-items:center;padding:17px 18px;background:#0d0d0d;border-bottom:1px solid #222}
-        .row:last-child{border-bottom:0}.row.header{background:#151515;color:#666;font-size:9px;font-weight:700}
-        .position{color:#ff4fa3;font-weight:700}.player{font-weight:700}.riotid{font-size:9px;color:#666;text-transform:none;margin-top:3px}.tier{font-size:12px;font-weight:600}.lp{text-align:right;font-size:12px;font-weight:700}.empty{text-align:center;color:#777;padding:30px;font-size:10px}
-        .rules{display:grid;gap:9px}.rule{display:grid;grid-template-columns:55px 1fr;gap:18px;background:#0d0d0d;border:1px solid #292929;padding:24px}.rule-num{color:#ff4fa3;font-weight:700}.rule h3{margin:0 0 12px;font-size:19px}.rule p{margin:0;color:#999;font-size:12px;line-height:1.7;text-transform:none}
-        .faq{display:grid;gap:8px}details{background:#0d0d0d;border:1px solid #292929;padding:19px 20px}summary{cursor:pointer;font-size:12px;font-weight:700;list-style:none}summary::-webkit-details-marker{display:none}details p{color:#999;font-size:12px;line-height:1.7;text-transform:none;margin:14px 0 0}
-        .streams{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.stream{background:#0d0d0d;border:1px solid #292929;padding:20px;transition:.2s}.stream:hover{border-color:#ff4fa3;transform:translateY(-2px)}.stream-name{font-size:18px;font-weight:700;margin:22px 0 6px}.stream-url{font-size:9px;color:#777;text-transform:none}.watch{margin-top:18px;color:#ff4fa3;font-size:9px;font-weight:700}
-        .opgg{font-size:9px;color:#777;margin-top:7px}.row:hover .opgg{color:#ff4fa3}
-        footer{padding:50px 0}.footer{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.footer-title{font-size:25px;font-weight:700}.social{display:flex;gap:18px;color:#888;font-size:9px}.copy{color:#555;font-size:9px;margin-top:25px}
-        @media(max-width:850px){nav{display:none}.cards{grid-template-columns:1fr 1fr}.streams{grid-template-columns:1fr 1fr}.row{grid-template-columns:40px 1fr 95px 75px}}
-        @media(max-width:600px){.container{width:calc(100% - 24px)}.hero{padding:85px 0 75px}.cards,.streams{grid-template-columns:1fr}.head{grid-template-columns:40px 1fr}.row{grid-template-columns:35px 1fr 90px}.row .lp,.row.header .lp{display:none}.rule{grid-template-columns:38px 1fr}}
+        @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+        * {
+          box-sizing: border-box;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        body {
+          margin: 0;
+          background:
+            radial-gradient(
+              circle at 85% 15%,
+              rgba(255, 0, 119, 0.12),
+              transparent 32%
+            ),
+            #050505;
+          color: white;
+          font-family: "Space Grotesk", Arial, Helvetica, sans-serif;
+          text-transform: uppercase;
+        }
+
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        .challenge-page {
+          min-height: 100vh;
+          overflow: hidden;
+        }
+
+        .navbar {
+          height: 76px;
+          padding: 0 4%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid rgba(255, 0, 119, 0.15);
+          background: rgba(5, 5, 5, 0.94);
+          position: sticky;
+          top: 0;
+          z-index: 20;
+          backdrop-filter: blur(15px);
+        }
+
+        .brand img {
+          width: 120px;
+          height: 100px;
+          object-fit: contain;
+          transform: translateY(10px);
+        }
+
+        nav {
+          display: flex;
+          gap: 25px;
+          height: 100%;
+          align-items: center;
+        }
+
+        nav a {
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.5px;
+          color: #a8a8a8;
+          transition: 0.2s;
+        }
+
+        nav a:hover {
+          color: #ff0a83;
+        }
+
+        .socials {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .socials a {
+          border: 1px solid #292929;
+          padding: 10px 12px;
+          border-radius: 8px;
+          font-size: 11px;
+          font-weight: 800;
+        }
+
+        .socials .follow-button {
+          background: #ff0a83;
+          border-color: #ff0a83;
+          padding: 12px 20px;
+        }
+
+        .hero {
+          width: 94%;
+          max-width: 1500px;
+          margin: 70px auto 45px;
+          display: grid;
+          grid-template-columns: 0.8fr 1.2fr;
+          gap: 45px;
+          align-items: center;
+        }
+
+        .hero-logo {
+          width: min(100%, 480px);
+          max-height: 400px;
+          object-fit: contain;
+          margin-bottom: 25px;
+        }
+
+        .eyebrow {
+          font-size: 15px;
+          font-weight: 900;
+          letter-spacing: 3px;
+          color: #ddd;
+        }
+
+        .date-box {
+          display: inline-block;
+          margin: 12px 0 35px;
+          padding: 13px 18px;
+          border: 1px solid #ff0a83;
+          color: #ff0a83;
+          font-weight: 900;
+          font-size: 13px;
+        }
+
+        .countdown-title {
+          font-size: 12px;
+          font-weight: 900;
+          letter-spacing: 2px;
+          color: #aaa;
+          margin-bottom: 12px;
+        }
+
+        .countdown {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 8px;
+          max-width: 500px;
+        }
+
+        .countdown div {
+          border: 1px solid #292929;
+          border-radius: 8px;
+          padding: 15px 8px;
+          text-align: center;
+          background: #090909;
+        }
+
+        .countdown strong {
+          display: block;
+          font-size: 30px;
+          color: #ff0a83;
+        }
+
+        .countdown span {
+          font-size: 9px;
+          color: #aaa;
+          font-weight: 800;
+        }
+
+        .start-date {
+          color: #aaa;
+          font-size: 11px;
+          font-weight: 800;
+        }
+
+        .hero-stream {
+          min-width: 0;
+          border: 1px solid rgba(255, 0, 119, 0.6);
+          border-radius: 12px;
+          overflow: hidden;
+          background: #0a0a0c;
+          box-shadow: 0 0 50px rgba(255, 0, 119, 0.08);
+        }
+
+        .stream-header {
+          height: 55px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 0 20px;
+          font-size: 11px;
+          font-weight: 900;
+          color: #ff0a83;
+          background: #100b10;
+        }
+
+        .platform {
+          margin-left: auto;
+          color: #777;
+          letter-spacing: 2px;
+        }
+
+        .live-dot {
+          width: 8px;
+          height: 8px;
+          display: inline-block;
+          border-radius: 50%;
+          background: #ff0a83;
+          box-shadow: 0 0 12px #ff0a83;
+        }
+
+        .twitch-player {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          background: #000;
+        }
+
+        .twitch-player iframe {
+          width: 100%;
+          height: 100%;
+          border: 0;
+        }
+
+        .offline-main {
+          aspect-ratio: 16 / 9;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background:
+            repeating-linear-gradient(
+              135deg,
+              #0a0a0c,
+              #0a0a0c 30px,
+              #111114 30px,
+              #111114 32px
+            );
+        }
+
+        .offline-background {
+          text-align: center;
+          opacity: 0.65;
+        }
+
+        .offline-background span {
+          display: block;
+          font-size: 30px;
+          font-weight: 900;
+          letter-spacing: 7px;
+          color: #777;
+        }
+
+        .offline-background strong {
+          display: block;
+          font-size: clamp(45px, 7vw, 90px);
+          font-weight: 1000;
+          color: #ff0a83;
+          text-shadow: 0 0 25px rgba(255, 0, 119, 0.35);
+        }
+
+        .main-stream-info {
+          min-height: 85px;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 15px 20px;
+          background: #09090b;
+        }
+
+        .main-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: #ff0a83;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 900;
+          overflow: hidden;
+        }
+
+        .main-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .main-name {
+          font-size: 16px;
+          font-weight: 900;
+        }
+
+        .verified {
+          display: inline-flex;
+          margin-left: 6px;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #ff0a83;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+        }
+
+        .tag {
+          display: inline-block;
+          margin-left: 10px;
+          padding: 4px 7px;
+          border-radius: 4px;
+          background: rgba(255, 0, 119, 0.12);
+          color: #ff0a83;
+          font-size: 8px;
+          font-weight: 900;
+          vertical-align: middle;
+        }
+
+        .main-game {
+          margin-top: 5px;
+          color: #777;
+          font-size: 11px;
+        }
+
+        .watch-button {
+          margin-left: auto;
+          background: #ff0a83;
+          padding: 13px 20px;
+          border-radius: 5px;
+          font-size: 10px;
+          font-weight: 900;
+        }
+
+        .live-section {
+          width: 94%;
+          max-width: 1500px;
+          margin: 0 auto 70px;
+          padding: 25px;
+          border: 1px solid rgba(255, 0, 119, 0.4);
+          border-radius: 12px;
+          background: rgba(8, 8, 10, 0.8);
+        }
+
+        .section-heading {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 22px;
+        }
+
+        .section-heading h2 {
+          margin: 0;
+          font-size: 20px;
+          letter-spacing: 1px;
+        }
+
+        .section-heading h2 .live-dot {
+          margin-right: 10px;
+        }
+
+        .section-heading p {
+          color: #777;
+          margin: 7px 0 0 18px;
+          font-size: 11px;
+        }
+
+        .all-streams {
+          border: 1px solid #333;
+          border-radius: 6px;
+          padding: 12px 17px;
+          font-size: 10px;
+          font-weight: 900;
+        }
+
+        .stream-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 14px;
+        }
+
+        .stream-card {
+          border: 1px solid #292929;
+          border-radius: 9px;
+          overflow: hidden;
+          background: #09090b;
+          transition: 0.2s;
+        }
+
+        .stream-card.live {
+          border-color: rgba(255, 0, 119, 0.65);
+        }
+
+        .stream-card:hover {
+          transform: translateY(-3px);
+          border-color: #ff0a83;
+        }
+
+        .card-preview {
+          position: relative;
+          aspect-ratio: 16 / 9;
+          background: #101013;
+          overflow: hidden;
+        }
+
+        .card-preview img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .offline-preview {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #101014, #080809);
+          color: #555;
+          font-size: 13px;
+          font-weight: 900;
+          letter-spacing: 2px;
+        }
+
+        .status {
+          position: absolute;
+          left: 10px;
+          top: 10px;
+          padding: 6px 8px;
+          border-radius: 4px;
+          background: #ff0a83;
+          color: white;
+          font-size: 8px;
+          font-weight: 900;
+        }
+
+        .status.offline {
+          background: #303033;
+          color: #aaa;
+        }
+
+        .card-info {
+          padding: 12px;
+          display: flex;
+          align-items: center;
+          gap: 9px;
+        }
+
+        .card-avatar {
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+          overflow: hidden;
+          background: #222;
+          flex-shrink: 0;
+        }
+
+        .card-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .card-name {
+          font-size: 12px;
+          font-weight: 900;
+        }
+
+        .card-viewers {
+          color: #777;
+          font-size: 9px;
+          margin-top: 3px;
+        }
+
+        .card-tag {
+          margin-left: auto;
+          color: #ff0a83;
+          font-size: 7px;
+          font-weight: 900;
+        }
+
+        .content-section {
+          width: 94%;
+          max-width: 1500px;
+          margin: 0 auto 80px;
+          padding-top: 20px;
+          scroll-margin-top: 100px;
+        }
+
+        .section-heading-large {
+          display: flex;
+          gap: 22px;
+          align-items: flex-start;
+          margin-bottom: 35px;
+        }
+
+        .section-heading-large > span {
+          color: #ff0a83;
+          font-size: 14px;
+          font-weight: 900;
+          padding-top: 5px;
+        }
+
+        .section-kicker {
+          color: #777;
+          font-size: 10px;
+          font-weight: 900;
+          letter-spacing: 3px;
+          margin: 0 0 8px;
+        }
+
+        .section-heading-large h2 {
+          margin: 0;
+          font-size: clamp(30px, 5vw, 58px);
+          font-weight: 1000;
+          letter-spacing: -2px;
+        }
+
+        .info-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 14px;
+        }
+
+        .info-card {
+          border: 1px solid #252529;
+          background: #09090b;
+          border-radius: 10px;
+          padding: 25px;
+          min-height: 180px;
+          transition: 0.2s;
+        }
+
+        .info-card:hover {
+          border-color: rgba(255, 0, 119, 0.7);
+          transform: translateY(-3px);
+        }
+
+        .info-icon {
+          font-size: 24px;
+        }
+
+        .info-card h3 {
+          font-size: 13px;
+          margin: 20px 0 10px;
+        }
+
+        .info-card p {
+          color: #777;
+          font-size: 12px;
+          line-height: 1.7;
+          margin: 0;
+        }
+
+        .participants-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+        }
+
+        .participant-card {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 16px;
+          border: 1px solid #292929;
+          background: #09090b;
+          border-radius: 9px;
+          transition: 0.2s;
+        }
+
+        .participant-card:hover {
+          border-color: #ff0a83;
+          transform: translateY(-2px);
+        }
+
+        .participant-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          overflow: hidden;
+          background: #18181c;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #ff0a83;
+          font-weight: 900;
+          flex-shrink: 0;
+        }
+
+        .participant-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .participant-card h3 {
+          margin: 0 0 5px;
+          font-size: 13px;
+        }
+
+        .participant-card span {
+          color: #ff0a83;
+          font-size: 8px;
+          font-weight: 900;
+        }
+
+        .participant-live {
+          margin-left: auto;
+          color: #ff0a83;
+          font-size: 8px;
+        }
+
+        .ranking-note {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 14px;
+          padding: 15px 18px;
+          border: 1px solid rgba(255, 0, 119, 0.35);
+          border-radius: 9px;
+          background: rgba(255, 0, 119, 0.035);
+        }
+
+        .ranking-note > span {
+          font-size: 25px;
+        }
+
+        .ranking-note strong {
+          font-size: 11px;
+        }
+
+        .ranking-note p {
+          margin: 5px 0 0;
+          color: #777;
+          font-size: 9px;
+        }
+
+        .ranking-link {
+          color: inherit;
+          text-decoration: none;
+          cursor: pointer;
+          transition: 0.2s;
+        }
+
+        .ranking-link:hover {
+          background: rgba(255, 0, 119, 0.055);
+          border-left: 3px solid #ff0a83;
+          padding-left: 19px;
+        }
+
+        .ranking-player > div {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+
+        .ranking-player small {
+          color: #666;
+          font-size: 7px;
+          font-weight: 900;
+          letter-spacing: 0.5px;
+        }
+
+        .ranking-link:hover .ranking-player small {
+          color: #ff0a83;
+        }
+
+        .organizer-main-card {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 25px;
+          padding: 28px;
+          border: 1px solid rgba(255, 0, 119, 0.45);
+          border-radius: 12px;
+          background: linear-gradient(110deg, rgba(255,0,119,.08), #09090b 55%);
+        }
+
+        .organizer-main-copy {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .organizer-live-dot {
+          color: #ff0a83;
+          font-size: 25px;
+          text-shadow: 0 0 15px #ff0a83;
+        }
+
+        .organizer-main-copy strong {
+          font-size: 14px;
+        }
+
+        .organizer-main-copy p {
+          max-width: 650px;
+          color: #777;
+          font-size: 11px;
+          line-height: 1.7;
+          margin: 7px 0 0;
+        }
+
+        .participant-riotid {
+          display: block;
+          color: #555;
+          font-size: 8px;
+          margin-top: 5px;
+          text-transform: none;
+        }
+
+        .ranking-box {
+          border: 1px solid rgba(255, 0, 119, 0.35);
+          border-radius: 12px;
+          overflow: hidden;
+          background: #09090b;
+        }
+
+        .ranking-header,
+        .ranking-row {
+          display: grid;
+          grid-template-columns: 70px 1fr 200px 120px;
+          align-items: center;
+        }
+
+        .ranking-header {
+          padding: 16px 22px;
+          color: #666;
+          font-size: 9px;
+          font-weight: 900;
+          letter-spacing: 1px;
+          border-bottom: 1px solid #242428;
+          background: #0d0d10;
+        }
+
+        .ranking-row {
+          padding: 15px 22px;
+          border-bottom: 1px solid #1c1c20;
+        }
+
+        .ranking-row:last-child {
+          border-bottom: 0;
+        }
+
+        .position {
+          color: #ff0a83;
+        }
+
+        .ranking-player {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 13px;
+          font-weight: 900;
+        }
+
+        .ranking-player img {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        .rank-name {
+          color: #aaa;
+          font-size: 12px;
+          font-weight: 800;
+        }
+
+        .lp {
+          color: #ff0a83;
+          font-size: 13px;
+        }
+
+        .ranking-empty {
+          text-align: center;
+          padding: 70px 20px;
+        }
+
+        .ranking-empty-icon {
+          font-size: 45px;
+          margin-bottom: 15px;
+        }
+
+        .ranking-empty h3 {
+          margin: 0 0 10px;
+          font-size: 17px;
+        }
+
+        .ranking-empty p {
+          margin: 0 auto 18px;
+          color: #666;
+          max-width: 500px;
+          font-size: 12px;
+          line-height: 1.7;
+        }
+
+        .ranking-empty span {
+          color: #ff0a83;
+          font-size: 10px;
+          font-weight: 900;
+          letter-spacing: 2px;
+        }
+
+        .rules-intro {
+          border: 1px solid rgba(255, 0, 119, 0.4);
+          background: rgba(255, 0, 119, 0.04);
+          padding: 25px;
+          border-radius: 10px;
+          margin-bottom: 20px;
+        }
+
+        .rules-intro > div {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+        }
+
+        .rules-intro span {
+          font-size: 30px;
+        }
+
+        .rules-intro strong {
+          font-size: 14px;
+        }
+
+        .rules-intro p {
+          color: #777;
+          font-size: 11px;
+          margin: 7px 0 0;
+        }
+
+        .rules-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .rule-card {
+          border: 1px solid #252529;
+          border-radius: 10px;
+          background: #09090b;
+          padding: 25px;
+        }
+
+        .rule-top {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          border-bottom: 1px solid #202024;
+          padding-bottom: 17px;
+          margin-bottom: 18px;
+        }
+
+        .rule-number {
+          color: #ff0a83;
+          font-size: 12px;
+          font-weight: 900;
+        }
+
+        .rule-icon {
+          font-size: 20px;
+        }
+
+        .rule-top h3 {
+          margin: 0;
+          font-size: 14px;
+          letter-spacing: 0.5px;
+        }
+
+        .rule-content {
+          color: #999;
+          font-size: 12px;
+          line-height: 1.75;
+        }
+
+        .rule-content p {
+          margin: 0 0 13px;
+        }
+
+        .rule-content strong {
+          color: #fff;
+        }
+
+        .rule-content ul {
+          margin: 10px 0 18px;
+          padding-left: 0;
+          list-style: none;
+        }
+
+        .rule-content li {
+          margin: 7px 0;
+        }
+
+        .rule-highlight {
+          margin-top: 18px;
+          padding: 16px;
+          border-left: 3px solid #ff0a83;
+          background: rgba(255, 0, 119, 0.05);
+        }
+
+        .strong-message {
+          color: #fff;
+          font-weight: 900;
+        }
+
+        .big-rule-number {
+          color: #ff0a83;
+          font-size: 28px;
+          font-weight: 1000;
+          letter-spacing: -1px;
+          margin: 15px 0;
+        }
+
+        .rule-subtitle {
+          color: #ff0a83;
+          font-weight: 900;
+          font-size: 10px;
+          letter-spacing: 1px;
+          margin: 20px 0 8px;
+        }
+
+        .ban-box {
+          margin-top: 20px;
+          padding: 20px;
+          border: 1px solid rgba(255, 0, 119, 0.5);
+          background: rgba(255, 0, 119, 0.04);
+        }
+
+        .ban-title {
+          color: #ff0a83;
+          font-size: 26px;
+          font-weight: 1000;
+          margin: 12px 0;
+        }
+
+        .final-date {
+          display: flex;
+          gap: 15px;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+
+        .final-date strong {
+          color: #fff;
+          font-size: 15px;
+        }
+
+        .final-date span {
+          color: #ff0a83;
+          font-weight: 900;
+        }
+
+        .champion-message {
+          margin-top: 25px;
+          padding: 20px;
+          text-align: center;
+          border: 1px solid rgba(255, 0, 119, 0.5);
+          color: #ff0a83;
+          font-size: 16px;
+          font-weight: 1000;
+        }
+
+        .organizer-card {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          margin-top: 20px;
+          padding: 25px;
+          border: 1px solid #292929;
+          border-radius: 10px;
+          background: #09090b;
+        }
+
+        .organizer-card > span {
+          font-size: 35px;
+        }
+
+        .organizer-card small {
+          color: #666;
+          font-size: 9px;
+          font-weight: 900;
+        }
+
+        .organizer-card h3 {
+          margin: 5px 0 12px;
+        }
+
+        .organizer-links {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .organizer-links a {
+          border: 1px solid #292929;
+          padding: 8px 10px;
+          border-radius: 5px;
+          font-size: 9px;
+          font-weight: 800;
+        }
+
+        .organizer-links a:hover {
+          border-color: #ff0a83;
+          color: #ff0a83;
+        }
+
+        .faq-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .faq-item {
+          border: 1px solid #252529;
+          border-radius: 9px;
+          background: #09090b;
+          overflow: hidden;
+        }
+
+        .faq-item summary {
+          cursor: pointer;
+          list-style: none;
+          display: grid;
+          grid-template-columns: 45px 1fr 25px;
+          align-items: center;
+          gap: 10px;
+          padding: 20px;
+        }
+
+        .faq-item summary::-webkit-details-marker {
+          display: none;
+        }
+
+        .faq-item summary > span {
+          color: #ff0a83;
+          font-size: 9px;
+          font-weight: 900;
+        }
+
+        .faq-item summary strong {
+          font-size: 12px;
+        }
+
+        .faq-item summary b {
+          color: #ff0a83;
+          font-size: 18px;
+          text-align: right;
+        }
+
+        .faq-item[open] summary {
+          border-bottom: 1px solid #222;
+        }
+
+        .faq-item[open] summary b {
+          transform: rotate(45deg);
+        }
+
+        .faq-answer {
+          padding: 18px 20px 20px 75px;
+        }
+
+        .faq-answer p {
+          color: #888;
+          font-size: 12px;
+          line-height: 1.8;
+          margin: 0;
+        }
+
+        .loading {
+          grid-column: 1 / -1;
+          padding: 40px;
+          text-align: center;
+          color: #777;
+        }
+
+        footer {
+          margin-top: 70px;
+          padding: 35px;
+          border-top: 1px solid #202024;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 20px;
+          color: #555;
+          font-size: 9px;
+          font-weight: 900;
+        }
+
+        footer img {
+          width: 65px;
+          height: 50px;
+          object-fit: contain;
+        }
+
+        @media (max-width: 1100px) {
+          nav {
+            display: none;
+          }
+
+          .hero {
+            grid-template-columns: 1fr;
+          }
+
+          .hero-left {
+            text-align: center;
+          }
+
+          .hero-logo {
+            width: 350px;
+          }
+
+          .countdown {
+            margin: 0 auto;
+          }
+
+          .stream-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .info-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .participants-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 700px) {
+          .organizer-main-card {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .navbar {
+            padding: 0 15px;
+          }
+
+          .brand img {
+            width: 85px;
+          }
+
+          .socials a:not(.follow-button) {
+            display: none;
+          }
+
+          .follow-button {
+            padding: 9px 10px !important;
+          }
+
+          .hero {
+            width: 92%;
+            margin-top: 35px;
+          }
+
+          .hero-logo {
+            width: 280px;
+          }
+
+          .countdown strong {
+            font-size: 22px;
+          }
+
+          .countdown span {
+            font-size: 7px;
+          }
+
+          .main-stream-info {
+            flex-wrap: wrap;
+          }
+
+          .watch-button {
+            width: 100%;
+            text-align: center;
+            margin-left: 0;
+          }
+
+          .live-section {
+            width: 92%;
+            padding: 15px;
+          }
+
+          .section-heading {
+            align-items: flex-start;
+            gap: 15px;
+            flex-direction: column;
+          }
+
+          .stream-grid,
+          .info-grid,
+          .participants-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .content-section {
+            width: 92%;
+          }
+
+          .ranking-header,
+          .ranking-row {
+            grid-template-columns: 35px 1fr 90px 65px;
+          }
+
+          .ranking-header {
+            font-size: 7px;
+          }
+
+          .ranking-row {
+            padding: 13px 10px;
+          }
+
+          .ranking-player {
+            font-size: 10px;
+          }
+
+          .rank-name,
+          .lp {
+            font-size: 9px;
+          }
+
+          .rule-card {
+            padding: 18px;
+          }
+
+          .faq-item summary {
+            grid-template-columns: 30px 1fr 20px;
+            padding: 16px;
+          }
+
+          .faq-answer {
+            padding: 15px 16px 18px 46px;
+          }
+
+          .organizer-card {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          footer {
+            flex-direction: column;
+            text-align: center;
+          }
+        }
       `}</style>
+    </main>
+  );
+}
 
-      <div className="page">
-        <header><div className="container nav">
-          <a href="#inicio" className="logo">GREFUSO <span>CHALLENGE</span></a>
-          <nav><a href="#organizador">BYGREFUSO</a><a href="#clasificacion">CLASIFICACIÓN</a><a href="#participantes">PARTICIPANTES</a><a href="#streams">STREAMS</a><a href="#reglamento">REGLAMENTO</a><a href="#faq">FAQ</a></nav>
-        </div></header>
+function StreamerCard({ streamer }: { streamer: Streamer }) {
+  const tag = streamerLabels[streamer.channel] || "STREAM";
 
-        <main>
-          <section id="inicio" className="hero"><div className="container">
-            <div className="eyebrow">BYGREFUSO PRESENTA · 2026</div>
-            <h1>GREFUSO<br/><span className="pink">CHALLENGE</span></h1>
-            <p>EL RETO DE SOLOQ DONDE CADA PARTIDA CUENTA. COMPITE, SUBE LP Y LUCHA POR TERMINAR EN LO MÁS ALTO DE LA CLASIFICACIÓN.</p>
-            <div className="buttons"><a className="btn primary" href="#clasificacion">VER CLASIFICACIÓN</a><a className="btn" href="#reglamento">VER REGLAMENTO</a></div>
-          </div></section>
+  return (
+    <a
+      href={streamer.url}
+      target="_blank"
+      rel="noreferrer"
+      className={`stream-card ${streamer.live ? "live" : ""}`}
+    >
+      <div className="card-preview">
+        {streamer.live && streamer.thumbnail ? (
+          <img
+            src={streamer.thumbnail}
+            alt={`Directo de ${streamer.displayName}`}
+          />
+        ) : (
+          <div className="offline-preview">OFFLINE</div>
+        )}
 
-          <section id="organizador"><div className="container"><div className="head"><span className="number">01</span><div><h2>BYGREFUSO</h2><p className="intro">ORGANIZADOR DEL GREFUSO CHALLENGE 2026. SIGUE TODO EL EVENTO EN MIS REDES.</p></div></div>
-            <div className="cards">
-              <a className="card" href="https://www.twitch.tv/bygrefuso" target="_blank" rel="noreferrer"><span className="tag">TWITCH</span><h3>BYGREFUSO</h3><p>DIRECTOS Y COBERTURA DEL CHALLENGE.</p></a>
-              <a className="card" href="https://www.youtube.com/@LoJord1" target="_blank" rel="noreferrer"><span className="tag">YOUTUBE</span><h3>LOJORD1</h3><p>CONTENIDO Y RESÚMENES DEL EVENTO.</p></a>
-              <a className="card" href="https://www.instagram.com/_jordilarosa_/" target="_blank" rel="noreferrer"><span className="tag">INSTAGRAM</span><h3>_JORDILAROSA_</h3><p>ACTUALIZACIONES DEL GREFUSO CHALLENGE.</p></a>
-            </div>
-          </div></section>
-
-          <section id="clasificacion"><div className="container"><div className="head"><span className="number">02</span><div><h2>CLASIFICACIÓN</h2><p className="intro">SOLO CUENTAN RANGO + LP DE SOLOQ. HAZ CLIC EN UN JUGADOR PARA VER SU PERFIL EN OP.GG.</p></div></div>
-            <div className="ranking">
-              <div className="row header"><span>#</span><span>JUGADOR</span><span>RANGO</span><span className="lp">LP</span></div>
-              {apiError ? <div className="empty">ERROR API — NO SE HA PODIDO CARGAR LA CLASIFICACIÓN.</div> : ordered.length === 0 ? <div className="empty">CARGANDO CLASIFICACIÓN...</div> : ordered.map(p => (
-                <a className="row" href={opggUrl(p)} target="_blank" rel="noreferrer" key={p.name}>
-                  <span className="position">#{p.position}</span>
-                  <div><div className="player">{p.name}</div><div className="riotid">{p.riotId}#{p.tagLine}</div><div className="opgg">VER OP.GG ↗</div></div>
-                  <span className="tier">{rankLabel(p)}</span>
-                  <span className="lp">{p.lp == null ? "—" : `${p.lp} LP`}</span>
-                </a>
-              ))}
-            </div>
-            <p className="intro">{updated ? `ÚLTIMA ACTUALIZACIÓN: ${updated}` : "ACTUALIZACIÓN AUTOMÁTICA CADA 60 SEGUNDOS."}</p>
-          </div></section>
-
-          <section id="participantes"><div className="container"><div className="head"><span className="number">03</span><div><h2>PARTICIPANTES</h2><p className="intro">LOS 12 JUGADORES DEL GREFUSO CHALLENGE 2026.</p></div></div>
-            <div className="cards">{PLAYERS.map(([name, riot], i) => {
-              const tag = name === "Sallanman" ? "PRO" : ["ByGrefuso","Kawinho15","Al3","Yuuki26"].includes(name) ? "STRM" : "PARTICIPANTE";
-              return <div className="card" key={riot}><div className="top"><span className="muted">{String(i+1).padStart(2,"0")}</span><span className="tag">{tag}</span></div><h3>{name}</h3><p>{riot}</p></div>;
-            })}</div>
-          </div></section>
-
-          <section id="streams"><div className="container"><div className="head"><span className="number">04</span><div><h2>STREAMS</h2><p className="intro">CANALES DE LOS PARTICIPANTES Y DEL ORGANIZADOR.</p></div></div>
-            <div className="streams">{STREAMS.map(([name, channel, tag]) => <a className="stream" href={`https://www.twitch.tv/${channel}`} target="_blank" rel="noreferrer" key={channel}><span className="tag">{tag}</span><div className="stream-name">{name}</div><div className="stream-url">TWITCH.TV/{channel}</div><div className="watch">● VER CANAL ↗</div></a>)}</div>
-          </div></section>
-
-          <section><div className="container"><div className="head"><span className="number">05</span><div><h2>CÓMO FUNCIONA</h2><p className="intro">LAS CLAVES DEL CHALLENGE.</p></div></div>
-            <div className="cards">
-              <div className="card"><span className="muted">01</span><h3>5 PARTIDAS</h3><p>MÁXIMO DE 5 PARTIDAS NORMALES AL DÍA.</p></div>
-              <div className="card"><span className="muted">02</span><h3>+2 EXTRA</h3><p>LOS STREAMERS PUEDEN JUGAR 2 PARTIDAS EXTRA ESTANDO EN DIRECTO.</p></div>
-              <div className="card"><span className="muted">03</span><h3>ACUMULABLES</h3><p>SI NO JUEGAS TUS PARTIDAS, SE ACUMULAN PARA EL DÍA SIGUIENTE.</p></div>
-              <div className="card"><span className="muted">04</span><h3>SOLOQ</h3><p>NO HAY DUOQ NI AYUDAS ENTRE PARTICIPANTES.</p></div>
-              <div className="card"><span className="muted">05</span><h3>RANGO + LP</h3><p>ES LO ÚNICO QUE CUENTA PARA LA CLASIFICACIÓN.</p></div>
-              <div className="card"><span className="muted">06</span><h3>15 SEPTIEMBRE</h3><p>EL CHALLENGE TERMINA A LAS 23:59.</p></div>
-            </div>
-          </div></section>
-
-          <section id="reglamento"><div className="container"><div className="head"><span className="number">06</span><div><h2>REGLAMENTO</h2><p className="intro">REGLAMENTO OFICIAL DEL GREFUSO CHALLENGE 2026.</p></div></div>
-            <div className="rules">{RULES.map(([n,t,b]) => <article className="rule" key={n}><div className="rule-num">{n}</div><div><h3>{t}</h3><p>{b}</p></div></article>)}</div>
-          </div></section>
-
-          <section id="faq"><div className="container"><div className="head"><span className="number">07</span><div><h2>FAQ</h2><p className="intro">LAS PREGUNTAS MÁS FRECUENTES.</p></div></div>
-            <div className="faq">{FAQ.map(([q,a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div>
-          </div></section>
-        </main>
-
-        <footer><div className="container"><div className="footer">
-          <div><div className="footer-title">GREFUSO <span className="pink">CHALLENGE</span></div><div className="copy">ORGANIZADO POR BYGREFUSO · 2026</div></div>
-          <div className="social"><a href="https://www.twitch.tv/bygrefuso">TWITCH</a><a href="https://www.youtube.com/@LoJord1">YOUTUBE</a><a href="https://www.tiktok.com/@lojordi_ndeu">TIKTOK</a><a href="https://www.instagram.com/_jordilarosa_/">INSTAGRAM</a></div>
-        </div></div></footer>
+        <span className={`status ${streamer.live ? "" : "offline"}`}>
+          {streamer.live ? "● EN DIRECTO" : "OFFLINE"}
+        </span>
       </div>
-    </>
+
+      <div className="card-info">
+        <div className="card-avatar">
+          {streamer.avatar && (
+            <img
+              src={streamer.avatar}
+              alt={streamer.displayName}
+            />
+          )}
+        </div>
+
+        <div>
+          <div className="card-name">
+            {streamer.displayName}
+          </div>
+
+          <div className="card-viewers">
+            {streamer.live
+              ? `${formatViewers(streamer.viewers)} espectadores`
+              : "Offline"}
+          </div>
+        </div>
+
+        <span className="card-tag">{tag}</span>
+      </div>
+    </a>
   );
 }
