@@ -17,6 +17,7 @@ type Streamer = {
 
 type RiotPlayer = {
   name: string;
+  riotId?: string;
   rank: string;
   tier: string;
   lp: number;
@@ -25,26 +26,11 @@ type RiotPlayer = {
   icon?: string;
 };
 
-
-const PARTICIPANTS = [
-  { name: "KIWIX", riotId: "Nissaxter ENJ#RAGE", label: "PARTICIPANTE" },
-  { name: "MARCCALVO", riotId: "Tyrhys Dolan#RCD", label: "PARTICIPANTE" },
-  { name: "FARDOS31", riotId: "Myrwn#0031", label: "PARTICIPANTE" },
-  { name: "YUKI26", riotId: "palladinni#EUW", label: "PARTICIPANTE" },
-  { name: "DELACASA95", riotId: "grakulaq#EUW", label: "PARTICIPANTE" },
-  { name: "BOUNJIMI", riotId: "xokas the boss #005", label: "PARTICIPANTE" },
-  { name: "OREWARUO", riotId: "Sukehir0 Yami#Zoro", label: "PARTICIPANTE" },
-  { name: "CRIS", riotId: "Calm Smurf#EUW", label: "PARTICIPANTE" },
-  { name: "SALLANMAN", riotId: "Lo Narisut#1492", label: "PARTICIPANTE" },
-  { name: "BYGREFUSO", riotId: "tinaJJ#6700", label: "PARTICIPANTE" },
-  { name: "KAWINHO15", riotId: "GodzOclock#EUW", label: "PARTICIPANTE" },
-  { name: "AL3", riotId: "laaw Traafalgar#EUW", label: "PARTICIPANTE" },
-] as const;
 const STREAMER_ORDER = [
   "bygrefuso",
+  "sallanman_cat",
   "crisblade04",
   "yuuki26_",
-  "sallanman_cat",
   "orewarulo",
   "fardos_31",
   "delakelly",
@@ -703,6 +689,8 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="dashboard-section">
+        <div className="dashboard-live">
       <section className="live-section">
         <div className="section-heading">
           <div>
@@ -812,13 +800,14 @@ export default function Home() {
             const names: Record<string, string> = {
               bygrefuso: "ByGrefuso",
               crisblade04: "Crisblade04",
-              nerea3005_: "Nerea3005_",
+              yuuki26_: "Yuuki26",
               sallanman_cat: "Sallanman",
-              orewarulo: "Orewarulo",
-              fardos_31: "Fardos",
-              delakelly: "Delakelly",
-              euwthe4l3: "4l3",
+              orewarulo: "OreWaRuo",
+              fardos_31: "Fardos31",
+              delakelly: "Delacasa95",
+              euwthe4l3: "Al3",
               kawinho15_: "Kawinho15",
+              marcsuarezdp: "marccalvo",
             };
 
             return (
@@ -858,12 +847,24 @@ export default function Home() {
         </div>
       </section>
 
+
+        </div>
+
+        <div className="dashboard-ranking" id="clasificacion">
       <section id="clasificacion" className="content-section">
-        <div className="section-heading-large">
-          <span>03</span>
+        <div className="dashboard-heading">
           <div>
-            <p className="section-kicker">RANKING EN DIRECTO</p>
-            <h2>CLASIFICACIÓN</h2>
+            <h2><span className="live-dot"></span> CLASIFICACIÓN EN DIRECTO</h2>
+            <p>Actualizada automáticamente</p>
+          </div>
+          <a href="#clasificacion" className="dashboard-link">VER COMPLETA →</a>
+        </div>
+
+        <div className="ranking-note compact-ranking-note">
+          <span>🏆</span>
+          <div>
+            <strong>RANGO + LP = CLASIFICACIÓN</strong>
+            <p>Haz clic en un jugador para abrir su perfil en OP.GG.</p>
           </div>
         </div>
 
@@ -877,30 +878,28 @@ export default function Home() {
 
           {sortedPlayers.length > 0 ? (
             sortedPlayers.map((player, index) => (
-              <div className="ranking-row" key={player.name}>
-                <strong className="position">
-                  {index + 1}
-                </strong>
+              <a
+                className="ranking-row"
+                key={player.name}
+                href={`https://op.gg/lol/summoners/euw/${encodeURIComponent((player.riotId || player.name).replace("#", "-"))}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <strong className="position">{index + 1}</strong>
 
                 <div className="ranking-player">
                   {player.icon && (
-                    <img
-                      src={player.icon}
-                      alt={player.name}
-                    />
+                    <img src={player.icon} alt={player.name} />
                   )}
-
                   <span>{player.name}</span>
                 </div>
 
                 <span className="rank-name">
-                  {player.tier} {player.rank}
+                  {player.tier === "UNRANKED" ? "SIN RANGO" : `${player.tier} ${player.rank}`}
                 </span>
 
-                <strong className="lp">
-                  {player.lp} LP
-                </strong>
-              </div>
+                <strong className="lp">{player.lp} LP</strong>
+              </a>
             ))
           ) : (
             <div className="ranking-empty">
@@ -918,6 +917,10 @@ export default function Home() {
               </span>
             </div>
           )}
+        </div>
+      </section>
+
+
         </div>
       </section>
 
@@ -1054,12 +1057,10 @@ export default function Home() {
         body {
           margin: 0;
           background:
-            radial-gradient(
-              circle at 85% 15%,
-              rgba(255, 0, 119, 0.12),
-              transparent 32%
-            ),
-            #050505;
+            radial-gradient(circle at 78% 16%, rgba(255, 0, 119, 0.22), transparent 34%),
+            radial-gradient(circle at 8% 35%, rgba(145, 0, 90, 0.14), transparent 30%),
+            linear-gradient(180deg, #070507 0%, #050505 62%, #070507 100%);
+          background-attachment: fixed;
           color: white;
           font-family: Arial, Helvetica, sans-serif;
         }
@@ -1137,15 +1138,15 @@ export default function Home() {
         .hero {
           width: 94%;
           max-width: 1500px;
-          margin: 70px auto 45px;
+          margin: 38px auto 35px;
           display: grid;
-          grid-template-columns: 0.8fr 1.2fr;
-          gap: 45px;
+          grid-template-columns: 0.78fr 1.22fr;
+          gap: 38px;
           align-items: center;
         }
 
         .hero-logo {
-          width: min(100%, 480px);
+          width: min(100%, 500px);
           max-height: 400px;
           object-fit: contain;
           margin-bottom: 25px;
@@ -1364,10 +1365,130 @@ export default function Home() {
           font-weight: 900;
         }
 
-        .live-section {
+        .dashboard-section {
           width: 94%;
           max-width: 1500px;
           margin: 0 auto 70px;
+          display: grid;
+          grid-template-columns: minmax(0, 1.55fr) minmax(360px, 0.95fr);
+          gap: 26px;
+          align-items: start;
+        }
+
+        .dashboard-live,
+        .dashboard-ranking {
+          min-width: 0;
+        }
+
+        .dashboard-ranking {
+          border: 1px solid #292929;
+          border-radius: 12px;
+          background: rgba(8, 8, 10, 0.9);
+          overflow: hidden;
+        }
+
+        .dashboard-ranking .ranking-box {
+          border: 0;
+          border-radius: 0;
+          border-top: 1px solid #242428;
+        }
+
+        .dashboard-heading {
+          min-height: 64px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 15px;
+          margin-bottom: 12px;
+        }
+
+        .dashboard-heading h2 {
+          margin: 0;
+          font-size: 20px;
+          letter-spacing: 1px;
+        }
+
+        .dashboard-heading h2 .live-dot {
+          margin-right: 9px;
+        }
+
+        .dashboard-heading p {
+          color: #777;
+          margin: 7px 0 0 18px;
+          font-size: 11px;
+        }
+
+        .dashboard-link {
+          border: 1px solid #333;
+          border-radius: 6px;
+          padding: 10px 13px;
+          font-size: 9px;
+          font-weight: 900;
+          white-space: nowrap;
+        }
+
+        .dashboard-link:hover {
+          border-color: #ff0a83;
+          color: #ff0a83;
+        }
+
+        .compact-ranking-note {
+          margin: 0;
+          border: 0;
+          border-bottom: 1px solid #242428;
+          border-radius: 0;
+          padding: 14px 18px;
+        }
+
+        .compact-ranking-note p {
+          margin: 4px 0 0;
+          font-size: 9px;
+        }
+
+        .dashboard-ranking .ranking-header,
+        .dashboard-ranking .ranking-row {
+          grid-template-columns: 38px 1fr 100px 70px;
+        }
+
+        .dashboard-ranking .ranking-header {
+          padding: 13px 15px;
+          font-size: 8px;
+        }
+
+        .dashboard-ranking .ranking-row {
+          padding: 10px 15px;
+          min-height: 51px;
+          cursor: pointer;
+          transition: background 0.15s, border-color 0.15s;
+        }
+
+        .dashboard-ranking .ranking-row:hover {
+          background: rgba(255, 0, 119, 0.06);
+        }
+
+        .dashboard-ranking .ranking-player {
+          font-size: 11px;
+        }
+
+        .dashboard-ranking .ranking-player img {
+          width: 30px;
+          height: 30px;
+        }
+
+        .dashboard-ranking .rank-name,
+        .dashboard-ranking .lp {
+          font-size: 10px;
+        }
+
+        .dashboard-ranking .ranking-empty {
+          padding: 35px 18px;
+        }
+
+        .live-section {
+          width: 100%;
+          max-width: none;
+          margin: 0;
+
           padding: 25px;
           border: 1px solid rgba(255, 0, 119, 0.4);
           border-radius: 12px;
@@ -2036,6 +2157,10 @@ export default function Home() {
             grid-template-columns: 1fr;
           }
 
+          .dashboard-section {
+            grid-template-columns: 1fr;
+          }
+
           .hero-left {
             text-align: center;
           }
@@ -2105,9 +2230,24 @@ export default function Home() {
             margin-left: 0;
           }
 
-          .live-section {
+          .dashboard-section {
             width: 92%;
+            grid-template-columns: 1fr;
+          }
+
+          .live-section {
+            width: 100%;
             padding: 15px;
+          }
+
+          .dashboard-heading {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .dashboard-ranking .ranking-header,
+          .dashboard-ranking .ranking-row {
+            grid-template-columns: 32px 1fr 82px 58px;
           }
 
           .section-heading {
