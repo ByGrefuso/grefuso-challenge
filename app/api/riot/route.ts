@@ -4,35 +4,53 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const PARTICIPANTS = [
-  { name: "KIWIX", riotId: "Nissaxter ENJ#RAGE" },
-  { name: "MARCCALVO", riotId: "Tyrhys Dolan#RCD" },
-  { name: "FARDOS31", riotId: "Myrwn#0031" },
-  { name: "YUKI26", riotId: "palladinni#EUW" },
-  { name: "DELACASA95", riotId: "grakulaq#EUW" },
-  { name: "BOUNJIMI", riotId: "xokas the boss #005" },
-  { name: "OREWARUO", riotId: "Sukehir0 Yami#Zoro" },
-  { name: "CRIS", riotId: "Calm Smurf#EUW" },
-  { name: "SALLANMAN", riotId: "Lo Narisut#1492" },
-  { name: "BYGREFUSO", riotId: "tinaJJ#6700" },
-  { name: "KAWINHO15", riotId: "GodzOclock#EUW" },
-  { name: "AL3", riotId: "laaw Traafalgar#EUW" },
+  { name: "Kiwix", riotId: "Nissaxter ENJ#RAGE" },
+  { name: "marccalvo", riotId: "Tyrhys Dolan#RCD" },
+  { name: "Fardos31", riotId: "Myrwn#0031" },
+  { name: "Yuki26", riotId: "palladinni#EUW" },
+  { name: "Delacasa95", riotId: "grakulaq#EUW" },
+  { name: "Bounjimi", riotId: "xokas the boss #005" },
+  { name: "OreWaRuo", riotId: "Sukehir0 Yami#Zoro" },
+  { name: "cris", riotId: "Calm Smurf#EUW" },
+  { name: "sallanman", riotId: "Lo Narisut#1492" },
+  { name: "ByGrefuso", riotId: "tinaJJ#6700" },
+  { name: "Kawinho15", riotId: "GodzOclock#EUW" },
+  { name: "Al3", riotId: "laaw Traafalgar#EUW" },
 ] as const;
 
-function splitRiotId(riotId: string) {
-  const index = riotId.lastIndexOf("#");
-  if (index === -1) return { gameName: riotId, tagLine: "" };
+function splitRiotId(value: string) {
+  const hash = value.lastIndexOf("#");
+
+  if (hash === -1) {
+    return { gameName: value, tagLine: "" };
+  }
+
   return {
-    gameName: riotId.slice(0, index),
-    tagLine: riotId.slice(index + 1),
+    gameName: value.slice(0, hash),
+    tagLine: value.slice(hash + 1),
   };
 }
+
+const EMPTY_PLAYER = (participant: (typeof PARTICIPANTS)[number]) => ({
+  name: participant.name,
+  riotId: participant.riotId,
+  tier: "UNRANKED",
+  rank: "",
+  lp: 0,
+  wins: 0,
+  losses: 0,
+});
 
 export async function GET() {
   const apiKey = process.env.RIOT_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json(
-      { success: false, error: "Falta RIOT_API_KEY en .env.local", players: [] },
+      {
+        success: false,
+        error: "Falta RIOT_API_KEY en .env.local",
+        players: PARTICIPANTS.map(EMPTY_PLAYER),
+      },
       { status: 500 }
     );
   }
@@ -42,7 +60,6 @@ export async function GET() {
       try {
         const { gameName, tagLine } = splitRiotId(participant.riotId);
 
-        // Riot Account-v1: EUW routing for EUW accounts.
         const accountResponse = await fetch(
           `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(
             gameName
@@ -54,21 +71,16 @@ export async function GET() {
         );
 
         if (!accountResponse.ok) {
-          return {
-            name: participant.name,
-            riotId: participant.riotId,
-            tier: "UNRANKED",
-            rank: "",
-            lp: 0,
-            wins: 0,
-            losses: 0,
-          };
+          console.error(
+            `Riot Account API ${accountResponse.status} para ${participant.riotId}`
+          );
+          return EMPTY_PLAYER(participant);
         }
 
         const account = await accountResponse.json();
 
-        const summonerResponse = await fetch(
-          `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${encodeURIComponent(
+        const entriesResponse = await fetch(
+          `https://euw1.api.riotgames.com/lol/league/v4/entries/by-puuid/${encodeURIComponent(
             account.puuid
           )}`,
           {
@@ -77,32 +89,17 @@ export async function GET() {
           }
         );
 
-        if (!summonerResponse.ok) {
-          return {
-            name: participant.name,
-            riotId: participant.riotId,
-            tier: "UNRANKED",
-            rank: "",
-            lp: 0,
-            wins: 0,
-            losses: 0,
-          };
+        if (!entriesResponse.ok) {
+          console.error(
+            `Riot League API ${entriesResponse.status} para ${participant.riotId}`
+          );
+          return EMPTY_PLAYER(participant);
         }
 
-        const summoner = await summonerResponse.json();
-
-        const rankedResponse = await fetch(
-          `https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/${encodeURIComponent(
-            summoner.id
-          )}`,
-          {
-            headers: { "X-Riot-Token": apiKey },
-            cache: "no-store",
-          }
+        const entries = await entriesResponse.json();
+        const solo = entries.find(
+          (entry: any) => entry.queueType === "RANKED_SOLO_5x5"
         );
-
-        const entries = rankedResponse.ok ? await rankedResponse.json() : [];
-        const solo = entries.find((entry: any) => entry.queueType === "RANKED_SOLO_5x5");
 
         return {
           name: participant.name,
@@ -114,16 +111,8 @@ export async function GET() {
           losses: solo?.losses ?? 0,
         };
       } catch (error) {
-        console.error(`Riot error for ${participant.name}:`, error);
-        return {
-          name: participant.name,
-          riotId: participant.riotId,
-          tier: "UNRANKED",
-          rank: "",
-          lp: 0,
-          wins: 0,
-          losses: 0,
-        };
+        console.error(`Riot error para ${participant.riotId}:`, error);
+        return EMPTY_PLAYER(participant);
       }
     })
   );
@@ -133,3 +122,4 @@ export async function GET() {
     { headers: { "Cache-Control": "no-store, max-age=0" } }
   );
 }
+
