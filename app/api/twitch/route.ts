@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 const CHANNELS = [
+  const CHANNELS = [
   "bygrefuso",
   "crisblade04",
   "nerea3005_",
@@ -10,6 +11,8 @@ const CHANNELS = [
   "orewarulo",
   "fardos_31",
   "delakelly",
+  "euwthe4l3",
+  "kawinho15_",
 ];
 
 let cachedToken = "";
