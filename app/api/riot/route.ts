@@ -16,6 +16,10 @@ const PARTICIPANTS = [
   { name: "ByGrefuso", riotId: "tinaJJ#6700" },
   { name: "Kawinho15", riotId: "GodzOclock#EUW" },
   { name: "Al3", riotId: "laaw Traafalgar#EUW" },
+  { name: "Fabi", riotId: "icecoffeeweb#432" },
+  { name: "hipérbole", riotId: "Anworthy#EUW" },
+  { name: "aitor", riotId: "SexyBambino#EUW" },
+  { name: "Luewer", riotId: "nitte#88776" },
 ] as const;
 
 function splitRiotId(value: string) {
@@ -122,4 +126,3 @@ export async function GET() {
     { headers: { "Cache-Control": "no-store, max-age=0" } }
   );
 }
-
