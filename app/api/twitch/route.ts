@@ -5,7 +5,7 @@ export const revalidate = 0;
 
 const STREAMERS = [
   { channel: "bygrefuso", displayName: "BYGREFUSO" },
-  { channel: "crisblade04", displayName: "CRISTIAN" },
+  { channel: "crisbalde_", displayName: "CRIS" },
   { channel: "yuuki26_", displayName: "YUKI26" },
   { channel: "sallanman_cat", displayName: "SALLANMAN" },
   { channel: "orewarulo", displayName: "OREWARUO" },
@@ -14,6 +14,8 @@ const STREAMERS = [
   { channel: "euwthe4l3", displayName: "4L3" },
   { channel: "kawinho15_", displayName: "KAWINHO15" },
   { channel: "marcsuarezdp", displayName: "MARCCALVO" },
+  { channel: "DragonSniper555", displayName: "AITOR" },
+  { channel: "luewer18", displayName: "LUEWER" },
 ] as const;
 
 async function getTwitchToken() {
