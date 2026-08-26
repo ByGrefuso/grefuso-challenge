@@ -79,7 +79,7 @@ export async function GET() {
         channel: channel.channel,
         displayName: channelData?.user_username ?? channel.displayName,
         avatar: channelData?.profile_picture ?? "",
-        live: Boolean(channelData?.stream),
+        live: channelData?.stream?.is_live === true,
         title: channelData?.stream?.session_title ?? "",
         game: channelData?.stream?.category?.name ?? "",
         viewers: channelData?.stream?.viewer_count ?? 0,
