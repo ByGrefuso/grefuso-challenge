@@ -18,7 +18,7 @@ const PARTICIPANTS = [
   { name: "4l3", riotId: "laaw Traafalgar#EUW" },
   { name: "Muchars", riotId: "icecoffeeweb#432" },
   { name: "Hiperbole", riotId: "fettuccina45#EUW" },
-  { name: "Dragonsniper", riotId: "NethanSniper#555" },
+  { name: "Dragonsniper", riotId: "mostafahagag#EUW" },
   { name: "Luewer", riotId: "Ivaamaa  doppleg#GOAT" },
 ] as const;
 
