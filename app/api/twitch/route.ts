@@ -5,7 +5,7 @@ export const revalidate = 0;
 
 const STREAMERS = [
   { channel: "bygrefuso", displayName: "BYGREFUSO" },
-  { channel: "crisblade04", displayName: "CRISTIAN" },
+  { channel: "crisblade_", displayName: "CRISTIAN" },
   { channel: "yuuki26_", displayName: "YUKI26" },
   { channel: "sallanman_cat", displayName: "SALLANMAN" },
   { channel: "orewarulo", displayName: "OREWARUO" },
