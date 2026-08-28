@@ -11,15 +11,15 @@ const PARTICIPANTS = [
   { name: "Delacasa95", riotId: "grakulaq#EUW" },
   { name: "Bounjimi", riotId: "xokas the boss #005" },
   { name: "OreWaRuo", riotId: "Sukehir0 Yami#Zoro" },
-  { name: "cris", riotId: "Calm Smurf#EUW" },
+  { name: "Cristian", riotId: "Calm Smurf#EUW" },
   { name: "sallanman", riotId: "Lo Narisut#1492" },
   { name: "ByGrefuso", riotId: "tinaJJ#6700" },
   { name: "Kawinho15", riotId: "GodzOclock#EUW" },
-  { name: "Al3", riotId: "laaw Traafalgar#EUW" },
-  { name: "Fabi", riotId: "icecoffeeweb#432" },
-  { name: "hipérbole", riotId: "Anworthy#EUW" },
-  { name: "aitor", riotId: "SexyBambino#EUW" },
-  { name: "Luewer", riotId: "nitte#88776" },
+  { name: "4l3", riotId: "laaw Traafalgar#EUW" },
+  { name: "Muchars", riotId: "icecoffeeweb#432" },
+  { name: "Hiperbole", riotId: "Anworthy#EUW" },
+  { name: "Dragonsniper", riotId: "NethanSniper#555" },
+  { name: "Luewer", riotId: "Ivaamaa  doppleg#GOAT" },
 ] as const;
 
 function splitRiotId(value: string) {
