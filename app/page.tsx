@@ -43,7 +43,7 @@ const PARTICIPANTS = [
   { name: "Muchars", riotId: "icecoffeeweb#432", platform: null, channel: "muchars" },
   { name: "Hiperbole", riotId: "fettuccina45#EUW", platform: null, channel: null },
   { name: "Dragonsniper", riotId: "NethanSniper#555", platform: "twitch", channel: "DragonSniper555" },
-  { name: "Luewer", riotId: "nitte#88776", platform: "twitch", channel: "luewer18" },
+  { name: "Luewer", riotId: "Ivaamaa  doppleg#GOAT", platform: "twitch", channel: "luewer18" },
 ] as const;
 
 const streamerLabels: Record<string, string[]> = {
