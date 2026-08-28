@@ -35,7 +35,7 @@ const PARTICIPANTS = [
   { name: "Delacasa95", riotId: "grakulaq#EUW", platform: "twitch", channel: "delakelly" },
   { name: "Bounjimi", riotId: "xokas the boss #005", platform: null, channel: null },
   { name: "OreWaRuo", riotId: "Sukehir0 Yami#Zoro", platform: "twitch", channel: "orewarulo" },
-  { name: "Crstian", riotId: "Calm Smurf#EUW", platform: "twitch", channel: "crisbalde04" },
+  { name: "Crstian", riotId: "Calm Smurf#EUW", platform: "twitch", channel: "crisblade04" },
   { name: "Sallanman", riotId: "Lo Narisut#1492", platform: "twitch", channel: "sallanman_cat" },
   { name: "ByGrefuso", riotId: "tinaJJ#6700", platform: "twitch", channel: "bygrefuso" },
   { name: "Kawinho15", riotId: "GodzOclock#EUW", platform: "twitch", channel: "kawinho15_" },
