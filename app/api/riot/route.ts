@@ -13,7 +13,7 @@ const PARTICIPANTS = [
   { name: "OreWaRuo", riotId: "Sukehir0 Yami#Zoro" },
   { name: "Cristian", riotId: "Calm Smurf#EUW" },
   { name: "sallanman", riotId: "Lo Narisut#1492" },
-  { name: "ByGrefuso", riotId: "tinaJJ#6700" },
+  { name: "ByGrefuso", riotId: "Ooh Ferran#PEPO" },
   { name: "Kawinho15", riotId: "GodzOclock#EUW" },
   { name: "4l3", riotId: "laaw Traafalgar#EUW" },
   { name: "Muchars", riotId: "icecoffeeweb#432" },
