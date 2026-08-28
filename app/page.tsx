@@ -397,7 +397,8 @@ function formatViewers(viewers: number) {
 }
 
 function getCountdown() {
-  const target = new Date("2026-08-28T20:00:00+02:00").getTime();
+  // El Challenge ya ha comenzado. Ahora contamos hasta su final oficial.
+  const target = new Date("2026-09-15T23:59:00+02:00").getTime();
   const now = Date.now();
   const difference = Math.max(0, target - now);
 
@@ -639,7 +640,7 @@ export default function Home() {
           </div>
 
           <div className="countdown-title">
-            EL CHALLENGE COMIENZA EN
+            EL CHALLENGE FINALIZA EN
           </div>
 
           <div className="countdown">
@@ -665,7 +666,7 @@ export default function Home() {
           </div>
 
           <p className="start-date">
-            ● VIERNES 28 DE AGOSTO A LAS 20:00
+            ● MARTES 15 DE SEPTIEMBRE A LAS 23:59
           </p>
         </div>
 
