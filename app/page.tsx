@@ -31,19 +31,19 @@ const PARTICIPANTS = [
   { name: "Kiwix", riotId: "Nissaxter ENJ#RAGE", platform: "kick", channel: "bydagma" },
   { name: "Marccalvo", riotId: "Tyrhys Dolan#RCD", platform: "twitch", channel: "marcsuarezdp" },
   { name: "Fardos31", riotId: "Myrwn#0031", platform: "twitch", channel: "fardos_31" },
-  { name: "Yuki26", riotId: "DYsavage#EUW", platform: "twitch", channel: "yuuki26_" },
+  { name: "Yuki26", riotId: "palladinni#EUW", platform: "twitch", channel: "yuuki26_" },
   { name: "Delacasa95", riotId: "grakulaq#EUW", platform: "twitch", channel: "delakelly" },
   { name: "Bounjimi", riotId: "xokas the boss #005", platform: null, channel: null },
   { name: "OreWaRuo", riotId: "Sukehir0 Yami#Zoro", platform: "twitch", channel: "orewarulo" },
   { name: "Crstian", riotId: "Calm Smurf#EUW", platform: "twitch", channel: "crisblade04" },
   { name: "Sallanman", riotId: "Lo Narisut#1492", platform: "twitch", channel: "sallanman_cat" },
-  { name: "ByGrefuso", riotId: "Ooh Ferran#PEPO", platform: "twitch", channel: "bygrefuso" },
+  { name: "ByGrefuso", riotId: "tinaJJ#6700", platform: "twitch", channel: "bygrefuso" },
   { name: "Kawinho15", riotId: "GodzOclock#EUW", platform: "twitch", channel: "kawinho15_" },
-  { name: "4l3", riotId: "laaw Traafalgar#EUW", platform: "twitch", channel: "euwthe4l3" },
+  { name: "Al3", riotId: "laaw Traafalgar#EUW", platform: "twitch", channel: "euwthe4l3" },
   { name: "Muchars", riotId: "icecoffeeweb#432", platform: null, channel: "muchars" },
-  { name: "Hiperbole", riotId: "fettuccina45#EUW", platform: null, channel: null },
+  { name: "Hiperbole", riotId: "hyperb0le#5285", platform: null, channel: null },
   { name: "Dragonsniper", riotId: "NethanSniper#555", platform: "twitch", channel: "DragonSniper555" },
-  { name: "Luewer", riotId: "Ivaamaa  doppleg#GOAT", platform: "twitch", channel: "luewer18" },
+  { name: "Luewer", riotId: "nitte#88776", platform: "twitch", channel: "luewer18" },
 ] as const;
 
 const streamerLabels: Record<string, string[]> = {
@@ -682,7 +682,7 @@ export default function Home() {
           {mainStreamer?.live ? (
             <div className="twitch-player">
               <iframe
-                src={`https://player.twitch.tv/?channel=${mainStreamer.channel}&parent=grefuso-challenge.vercel.app&muted=true`}
+                src={`https://player.twitch.tv/?channel=${mainStreamer.channel}&parent=grefusochallenge.com&parent=www.grefusochallenge.com&muted=true`}
                 allowFullScreen
                 title={`Directo de ${mainStreamer.displayName}`}
               />
