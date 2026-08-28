@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
 
-export default function robots(): MetadataRoute.Robots {
-  return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-    },
-    sitemap: "https://grefusochallenge.com/sitemap.xml",
-  };
-}
+const robots = (): MetadataRoute.Robots => ({
+  rules: {
+    userAgent: "*",
+    allow: "/",
+  },
+  sitemap: "https://grefusochallenge.com/sitemap.xml",
+});
+
+export default robots;
