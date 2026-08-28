@@ -7,7 +7,7 @@ const PARTICIPANTS = [
   { name: "Kiwix", riotId: "Nissaxter ENJ#RAGE" },
   { name: "marccalvo", riotId: "Tyrhys Dolan#RCD" },
   { name: "Fardos31", riotId: "Myrwn#0031" },
-  { name: "Yuki26", riotId: "palladinni#EUW" },
+  { name: "Yuki26", riotId: "DYsavage#EUW" },
   { name: "Delacasa95", riotId: "grakulaq#EUW" },
   { name: "Bounjimi", riotId: "xokas the boss #005" },
   { name: "OreWaRuo", riotId: "Sukehir0 Yami#Zoro" },
@@ -17,7 +17,7 @@ const PARTICIPANTS = [
   { name: "Kawinho15", riotId: "GodzOclock#EUW" },
   { name: "4l3", riotId: "laaw Traafalgar#EUW" },
   { name: "Muchars", riotId: "icecoffeeweb#432" },
-  { name: "Hiperbole", riotId: "Anworthy#EUW" },
+  { name: "Hiperbole", riotId: "fettuccina45#EUW" },
   { name: "Dragonsniper", riotId: "NethanSniper#555" },
   { name: "Luewer", riotId: "Ivaamaa  doppleg#GOAT" },
 ] as const;
