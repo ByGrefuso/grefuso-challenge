@@ -412,55 +412,34 @@ function getCountdown() {
 }
 
 function rankValue(tier: string, rank: string) {
-  // Riot API devuelve los tiers en inglés. También aceptamos español.
-  const normalizedTier = String(tier || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toUpperCase()
-    .trim();
-
-  const normalizedRank = String(rank || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toUpperCase()
-    .trim();
+  const normalize = (value: string) =>
+    String(value || "")
+      .normalize("NFD")
+      .replace(/[\\u0300-\\u036f]/g, "")
+      .toUpperCase()
+      .trim();
 
   const tiers: Record<string, number> = {
-    IRON: 1,
-    HIERRO: 1,
-    BRONZE: 2,
-    BRONCE: 2,
-    SILVER: 3,
-    PLATA: 3,
-    GOLD: 4,
-    ORO: 4,
-    PLATINUM: 5,
-    PLATINO: 5,
-    EMERALD: 6,
-    ESMERALDA: 6,
-    DIAMOND: 7,
-    DIAMANTE: 7,
-    MASTER: 8,
-    MAESTRO: 8,
-    GRANDMASTER: 9,
-    "GRAND MASTER": 9,
-    GRAN_MAESTRO: 9,
-    "GRAN MAESTRO": 9,
-    CHALLENGER: 10,
-    RETADOR: 10,
+    IRON: 1, HIERRO: 1,
+    BRONZE: 2, BRONCE: 2,
+    SILVER: 3, PLATA: 3,
+    GOLD: 4, ORO: 4,
+    PLATINUM: 5, PLATINO: 5,
+    EMERALD: 6, ESMERALDA: 6,
+    DIAMOND: 7, DIAMANTE: 7,
+    MASTER: 8, MAESTRO: 8,
+    GRANDMASTER: 9, "GRAND MASTER": 9,
+    GRAN_MAESTRO: 9, "GRAN MAESTRO": 9,
+    CHALLENGER: 10, RETADOR: 10,
   };
 
   const divisions: Record<string, number> = {
-    IV: 1,
-    III: 2,
-    II: 3,
-    I: 4,
+    IV: 1, III: 2, II: 3, I: 4,
   };
 
-  const tierValue = tiers[normalizedTier] ?? 0;
-
-  // En Maestro+ no existe división: el desempate es por LP.
-  const divisionValue = tierValue >= 8 ? 0 : (divisions[normalizedRank] ?? 0);
+  const tierValue = tiers[normalize(tier)] ?? 0;
+  const divisionValue =
+    tierValue >= 8 ? 0 : (divisions[normalize(rank)] ?? 0);
 
   return tierValue * 1000 + divisionValue * 100;
 }
@@ -601,20 +580,13 @@ export default function Home() {
     const aRank = rankValue(a.tier, a.rank);
     const bRank = rankValue(b.tier, b.rank);
 
-    // Primero: rango + división.
-    if (aRank !== bRank) {
-      return bRank - aRank;
-    }
+    if (aRank !== bRank) return bRank - aRank;
 
-    // Segundo: LP, de mayor a menor.
     const aLp = Number(a.lp) || 0;
     const bLp = Number(b.lp) || 0;
 
-    if (aLp !== bLp) {
-      return bLp - aLp;
-    }
+    if (aLp !== bLp) return bLp - aLp;
 
-    // Desempate estable para que el orden no cambie aleatoriamente.
     return a.name.localeCompare(b.name, "es");
   });
 
