@@ -35,7 +35,10 @@ function splitRiotId(value: string) {
   };
 }
 
-const EMPTY_PLAYER = (participant: (typeof PARTICIPANTS)[number]) => ({
+const EMPTY_PLAYER = (
+  participant: (typeof PARTICIPANTS)[number],
+  error?: string
+) => ({
   name: participant.name,
   riotId: participant.riotId,
   tier: "UNRANKED",
@@ -43,6 +46,7 @@ const EMPTY_PLAYER = (participant: (typeof PARTICIPANTS)[number]) => ({
   lp: 0,
   wins: 0,
   losses: 0,
+  ...(error ? { error } : {}),
 });
 
 export async function GET() {
@@ -78,7 +82,10 @@ export async function GET() {
           console.error(
             `Riot Account API ${accountResponse.status} para ${participant.riotId}`
           );
-          return EMPTY_PLAYER(participant);
+          return EMPTY_PLAYER(
+            participant,
+            `Riot Account API ${accountResponse.status}`
+          );
         }
 
         const account = await accountResponse.json();
@@ -97,7 +104,10 @@ export async function GET() {
           console.error(
             `Riot League API ${entriesResponse.status} para ${participant.riotId}`
           );
-          return EMPTY_PLAYER(participant);
+          return EMPTY_PLAYER(
+            participant,
+            `Riot League API ${entriesResponse.status}`
+          );
         }
 
         const entries = await entriesResponse.json();
@@ -113,10 +123,11 @@ export async function GET() {
           lp: solo?.leaguePoints ?? 0,
           wins: solo?.wins ?? 0,
           losses: solo?.losses ?? 0,
+          error: solo ? undefined : "SIN DATOS DE RANKED_SOLO_5x5",
         };
       } catch (error) {
         console.error(`Riot error para ${participant.riotId}:`, error);
-        return EMPTY_PLAYER(participant);
+        return EMPTY_PLAYER(participant, "Error consultando Riot API");
       }
     })
   );
