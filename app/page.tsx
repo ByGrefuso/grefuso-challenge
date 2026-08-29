@@ -412,17 +412,52 @@ function getCountdown() {
 }
 
 function rankValue(tier: string, rank: string) {
+  // Riot devuelve normalmente los rangos en inglés (IRON, BRONZE,
+  // SILVER, GOLD, PLATINUM, EMERALD, DIAMOND, MASTER, GRANDMASTER,
+  // CHALLENGER). Aceptamos también las versiones en español para que
+  // la clasificación nunca falle si cambia el formato de /api/riot.
+  const normalize = (value: string) =>
+    value
+      .normalize("NFD")
+      .replace(/[\\u0300-\\u036f]/g, "")
+      .toUpperCase()
+      .trim();
+
   const tiers: Record<string, number> = {
+    IRON: 1,
     HIERRO: 1,
+
+    BRONZE: 2,
     BRONCE: 2,
+
+    SILVER: 3,
     PLATA: 3,
+
+    GOLD: 4,
     ORO: 4,
+
+    PLATINUM: 5,
     PLATINO: 5,
+
+    EMERALD: 6,
     ESMERALDA: 6,
+
+    DIAMOND: 7,
     DIAMANTE: 7,
+
+    MASTER: 8,
     MAESTRO: 8,
+
+    GRANDMASTER: 9,
+    "GRAND MASTER": 9,
     GRAN_MAESTRO: 9,
+    "GRAN MAESTRO": 9,
+
     CHALLENGER: 10,
+    RETADOR: 10,
+
+    UNRANKED: 0,
+    "SIN RANGO": 0,
   };
 
   const divisions: Record<string, number> = {
@@ -432,11 +467,16 @@ function rankValue(tier: string, rank: string) {
     I: 4,
   };
 
-  return (
-    (tiers[tier.toUpperCase()] || 0) * 1000 +
-    (divisions[rank.toUpperCase()] || 0) * 100 +
-    0
-  );
+  const normalizedTier = normalize(tier);
+  const normalizedRank = normalize(rank);
+  const tierValue = tiers[normalizedTier] ?? 0;
+
+  // Maestro, Gran Maestro y Challenger no tienen división IV/I.
+  // El LP es el único desempate entre jugadores del mismo tier.
+  const divisionValue =
+    tierValue >= 8 ? 0 : (divisions[normalizedRank] ?? 0);
+
+  return tierValue * 1000 + divisionValue * 100;
 }
 
 export default function Home() {
@@ -572,12 +612,20 @@ export default function Home() {
     : orderedStreamers.slice(0, 6);
 
   const sortedPlayers = [...riotPlayers].sort((a, b) => {
-    const aValue =
-      rankValue(a.tier, a.rank) * 10000 + a.lp;
-    const bValue =
-      rankValue(b.tier, b.rank) * 10000 + b.lp;
+    const aScore = rankValue(a.tier, a.rank);
+    const bScore = rankValue(b.tier, b.rank);
 
-    return bValue - aValue;
+    // 1. Rango/división
+    if (aScore !== bScore) return bScore - aScore;
+
+    // 2. LP dentro del mismo rango/división
+    const aLp = Number.isFinite(Number(a.lp)) ? Number(a.lp) : 0;
+    const bLp = Number.isFinite(Number(b.lp)) ? Number(b.lp) : 0;
+
+    if (aLp !== bLp) return bLp - aLp;
+
+    // 3. Desempate estable por nombre
+    return a.name.localeCompare(b.name, "es");
   });
 
   return (
