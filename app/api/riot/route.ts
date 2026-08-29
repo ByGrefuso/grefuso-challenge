@@ -57,7 +57,7 @@ export async function GET() {
       {
         success: false,
         error: "Falta RIOT_API_KEY en .env.local",
-        players: PARTICIPANTS.map(EMPTY_PLAYER),
+        players: PARTICIPANTS.map((participant) => EMPTY_PLAYER(participant)),
       },
       { status: 500 }
     );
