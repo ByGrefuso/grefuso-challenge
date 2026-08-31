@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const CHANNELS = [
-  { channel: "bydagma", displayName: "KIWIX" },
+  { channel: "bydagma", displayName: "ByDagma" },
 ] as const;
 
 async function getKickToken() {
