@@ -14,7 +14,7 @@ const PARTICIPANTS = [
   { name: "Cristian", riotId: "Calm Smurf#EUW" },
   { name: "sallanman", riotId: "Lo Narisut#1492" },
   { name: "ByGrefuso", riotId: "Ooh Ferran#PEPO" },
-  { name: "Kawinho15", riotId: "GodzOclock#EUW" },
+  { name: "Kawinho15", riotId: "Gusterys#3976" },
   { name: "4l3", riotId: "X1aoCh4oM3ng#NOXUS" },
   { name: "Muchars", riotId: "icecoffeeweb#432" },
   { name: "Hiperbole", riotId: "fettuccina45#EUW" },
