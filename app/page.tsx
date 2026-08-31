@@ -28,7 +28,7 @@ type RiotPlayer = {
 };
 
 const PARTICIPANTS = [
-  { name: "Kiwix", riotId: "Nissaxter ENJ#RAGE", platform: "kick", channel: "bydagma" },
+  { name: "ByDagma", riotId: "Nissaxter ENJ#RAGE", platform: "kick", channel: "bydagma" },
   { name: "Marccalvo", riotId: "Tyrhys Dolan#RCD", platform: "twitch", channel: "marcsuarezdp" },
   { name: "Fardos31", riotId: "Myrwn#0031", platform: "twitch", channel: "fardos_31" },
   { name: "Yuki26", riotId: "DYsavage#EUW", platform: "twitch", channel: "yuuki26_" },
@@ -38,7 +38,7 @@ const PARTICIPANTS = [
   { name: "Crstian", riotId: "Calm Smurf#EUW", platform: "twitch", channel: "crisblade_" },
   { name: "Sallanman", riotId: "Lo Narisut#1492", platform: "twitch", channel: "sallanman_cat" },
   { name: "ByGrefuso", riotId: "Ooh Ferran#PEPO", platform: "twitch", channel: "bygrefuso" },
-  { name: "Kawinho15", riotId: "GodzOclock#EUW", platform: "twitch", channel: "kawinho15_" },
+  { name: "Kawinho15", riotId: "Gusterys#3976", platform: "twitch", channel: "kawinho15_" },
   { name: "4l3", riotId: "X1aoCh4oM3ng#NOXUS", platform: "twitch", channel: "euwthe4l3" },
   { name: "Muchars", riotId: "icecoffeeweb#432", platform: null, channel: "muchars" },
   { name: "Hiperbole", riotId: "fettuccina45#EUW", platform: null, channel: null },
