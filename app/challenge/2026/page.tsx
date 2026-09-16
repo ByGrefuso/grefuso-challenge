@@ -20,14 +20,42 @@ const finalClassification = [
   { name: "Muchars", rank: "HIERRO IV", lp: 0, twitch: "https://www.twitch.tv/muchars" },
 ];
 
-const videos: { title: string; id?: string; featured?: boolean }[] = [
-  { title: "Grefuso Challenge 2026 — Vídeo resumen", id: undefined, featured: true },
-  { title: "Grefuso Challenge 2026 — Momentos", id: undefined },
-  { title: "Grefuso Challenge 2026 — El camino al título", id: undefined },
+const videos = [
+  {
+    title: "Grefuso Challenge 2026 — Semana 1",
+    id: "G1ktOGDYrfg",
+    featured: true,
+  },
+  {
+    title: "Grefuso Challenge 2026 — Semana 2",
+    id: "vkFMBIBRpzc",
+  },
+  {
+    title: "Grefuso Challenge 2026 — Vídeo resumen final",
+    id: undefined,
+  },
 ];
 
 const clips = [
-  function TwitchIcon() {
+  {
+    title: "OrewaRulo",
+    file: "/clips/Kesha moment.mp4",
+  },
+  {
+    title: "Sallanman",
+    file: "/clips/largo de aqui ZERDA! HAHAH.mp4",
+  },
+  {
+    title: "delakelly",
+    file: "/clips/20260829_AthleticInquisitiveClipsdadArsonNoSexy-tUQibX1eCDITSMcO_source(1).mp4",
+  },
+  {
+    title: "Bygrefuso",
+    file: "/clips/2b14718a-c845-488a-9a21-72c61acb4351(1).mp4",
+  },
+];
+
+function TwitchIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -88,10 +116,24 @@ export default function Challenge2026() {
       <section id="clips" className="section">
         <div className="section-head"><span>03</span><div><div className="eyebrow">COMUNIDAD</div><h2>MEJORES CLIPS</h2></div></div>
         <div className="clip-grid">
-          {clips.map((clip, i) => <article className="clip-card" key={clip.title}><div className="clip-number">0{i + 1}</div><div><h3>{clip.title}</h3><p>{clip.note}</p></div><span>→</span></article>)}
-        </div>
-        <div className="instagram-cta"><strong>VOTA EL MEJOR CLIP</strong><span>Las votaciones se realizan mediante Stories en @bygrefuso.</span><a href="https://www.instagram.com/bygrefuso/" target="_blank" rel="noreferrer">IR A INSTAGRAM ↗</a></div>
-      </section>
+  {clips.map((clip, i) => (
+    <article className="clip-card" key={clip.file}>
+      <div className="clip-number">0{i + 1}</div>
+
+      <video
+        controls
+        preload="metadata"
+        playsInline
+        src={clip.file}
+      />
+
+      <div>
+        <h3>{clip.title}</h3>
+        <p>Grefuso Challenge 2026</p>
+      </div>
+    </article>
+  ))}
+</div>
 
       <footer className="footer"><Link href="/">← GREFUSO EVENTS</Link><span>GREFUSO CHALLENGE 2026</span></footer>
     </main>
