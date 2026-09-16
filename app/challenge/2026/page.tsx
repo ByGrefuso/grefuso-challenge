@@ -10,7 +10,7 @@ const finalClassification = [
   { name: "Luewer", rank: "GOLD III", lp: 10, twitch: "https://www.twitch.tv/luewer18" },
   { name: "Cristian", rank: "GOLD IV", lp: 85, twitch: "https://www.twitch.tv/crisblade_" },
   { name: "Kawinho15", rank: "GOLD IV", lp: 39, twitch: "https://www.twitch.tv/kawinho15_" },
-  { name: "Kiwix", rank: "GOLD IV", lp: 7, twitch: "https://www.twitch.tv/bydagma" },
+  { name: "ByDagma", rank: "GOLD IV", lp: 7, twitch: "https://www.twitch.tv/bydagma" },
   { name: "4l3", rank: "SILVER II", lp: 95 }, twitch: "https://www.twitch.tv/euwthe4l3" },
   { name: "Bounjimi", rank: "SILVER III", lp: 72 },
   { name: "Hiperbole", rank: "BRONZE II", lp: 65 },
