@@ -19,10 +19,10 @@ export default function Home() {
           <Link href="/challenge/2026" className="event-card challenge-card">
             <span className="event-status">FINALIZADO</span><div className="event-year">2026</div><h3>GREFUSO<br />CHALLENGE</h3><p>16 jugadores · 1 campeón</p><b>VER EDICIÓN →</b>
           </Link>
-          <div className="event-card cup-card"><span className="event-status">PRÓXIMAMENTE</span><div className="event-year">2027</div><h3>GREFUSO<br />CUP</h3><p>La próxima gran competición Grefuso.</p><b>MUY PRONTO</b></div>
+          <div className="event-card cup-card"><span className="event-status">PRÓXIMAMENTE</span><div className="event-year">2026</div><h3>GREFUSO<br />CUP</h3><p>La próxima gran competición Grefuso.</p><b>MUY PRONTO</b></div>
         </div>
       </section>
-      <section className="coming-section"><div className="coming-label">PRÓXIMO EVENTO</div><h2>GREFUSO CUP</h2><p>Estamos preparando algo grande.</p><span>PRÓXIMAMENTE</span></section>
+      <section className="coming-section"><div className="coming-label">PRÓXIMO EVENTO</div><h2>GREFUSO CUP 2026</h2><p>Estamos preparando algo grande.</p><span>PRÓXIMAMENTE</span></section>
       <footer className="footer"><span>GREFUSO EVENTS</span><span>BYGREFUSO</span></footer>
     </main>
   );
