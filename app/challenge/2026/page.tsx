@@ -1,22 +1,35 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const participants = [
-  "Sallanman", "Fardos31", "Dragonsniper", "ByDagma", "Marccalvo", "Yuki26", "Delacasa95", "Bounjimi",
-  "OreWaRuo", "Crstian", "ByGrefuso", "Kawinho15", "4l3", "Muchars", "Hiperbole", "Luewer"
+const finalClassification = [
+  { name: "sallanman", rank: "EMERALD IV", lp: 2 },
+  { name: "Dragonsniper", rank: "PLATINUM III", lp: 10 },
+  { name: "OreWaRuo", rank: "PLATINUM II", lp: 25 },
+  { name: "Fardos31", rank: "PLATINUM III", lp: 11 },
+  { name: "ByGrefuso", rank: "GOLD I", lp: 7 },
+  { name: "Luewer", rank: "GOLD III", lp: 10 },
+  { name: "Cristian", rank: "GOLD IV", lp: 85 },
+  { name: "Kawinho15", rank: "GOLD IV", lp: 39 },
+  { name: "Kiwix", rank: "GOLD IV", lp: 7 },
+  { name: "4l3", rank: "SILVER II", lp: 95 },
+  { name: "Bounjimi", rank: "SILVER III", lp: 72 },
+  { name: "Hiperbole", rank: "BRONZE II", lp: 65 },
+  { name: "marccalvo", rank: "BRONZE II", lp: 5 },
+  { name: "Delacasa95", rank: "BRONZE III", lp: 86 },
+  { name: "Yuki26", rank: "BRONZE III", lp: 2 },
+  { name: "Muchars", rank: "HIERRO IV", lp: 0 },
 ];
 
-// Añade aquí los IDs de YouTube conforme quieras incorporar más vídeos al archivo histórico.
 const videos: { title: string; id?: string; featured?: boolean }[] = [
   { title: "Grefuso Challenge 2026 — Vídeo resumen", id: undefined, featured: true },
-  { title: "Grefuso Challenge 2026 — Resumen / momentos", id: undefined },
+  { title: "Grefuso Challenge 2026 — Momentos", id: undefined },
   { title: "Grefuso Challenge 2026 — El camino al título", id: undefined },
 ];
 
 const clips = [
   { title: "Mejor clip — votación de la comunidad", note: "Votación abierta en Instagram" },
   { title: "Clips destacados del Challenge", note: "Próximamente" },
-  { title: "Más momentos", note: "Próximamente" },
+  { title: "Más momentos del Challenge", note: "Próximamente" },
 ];
 
 export default function Challenge2026() {
@@ -35,22 +48,22 @@ export default function Challenge2026() {
       </section>
 
       <section id="classification" className="section">
-        <div className="section-head"><span>01</span><div><div className="eyebrow">RESULTADO FINAL</div><h2>CLASIFICACIÓN</h2></div></div>
+        <div className="section-head"><span>01</span><div><div className="eyebrow">RESULTADO FINAL</div><h2>CLASIFICACIÓN FINAL</h2></div></div>
         <div className="podium">
-          <div className="podium-card second"><b>02</b><span>🥈</span><h3>—</h3><small>CLASIFICACIÓN FINAL</small></div>
-          <div className="podium-card first"><b>01</b><span>🏆</span><h3>SALLANMAN</h3><small>CAMPEÓN</small></div>
-          <div className="podium-card third"><b>03</b><span>🥉</span><h3>FARDOS31</h3><small>TOP 3</small></div>
+          <div className="podium-card second"><b>02</b><span>🥈</span><h3>DRAGONSNIPER</h3><small>PLATINUM III · 10 LP</small></div>
+          <div className="podium-card first"><b>01</b><span>🏆</span><h3>SALLANMAN</h3><small>EMERALD IV · 2 LP</small></div>
+          <div className="podium-card third"><b>03</b><span>🥉</span><h3>OREWARUO</h3><small>PLATINUM II · 25 LP</small></div>
         </div>
         <div className="final-table">
-          {participants.map((name, index) => (
-            <div className={`final-row ${index === 0 ? "champion-row" : ""}`} key={name}>
+          {finalClassification.map((player, index) => (
+            <div className={`final-row ${index === 0 ? "champion-row" : ""}`} key={player.name}>
               <span className="position">{String(index + 1).padStart(2, "0")}</span>
-              <strong>{name}</strong>
-              <span className="rank-value">{index === 0 ? "CAMPEÓN" : index === 1 ? "—" : index === 2 ? "PLATINO III · 10 LP" : "FINAL"}</span>
+              <strong>{player.name}</strong>
+              <span className="rank-value">{player.rank} · {player.lp} LP</span>
             </div>
           ))}
         </div>
-        <p className="archive-note">La clasificación se conserva como resultado histórico de la edición 2026.</p>
+        <p className="archive-note">Clasificación final oficial de Grefuso Challenge 2026. Estos resultados quedan guardados como archivo histórico y no dependen de la Riot API.</p>
       </section>
 
       <section id="videos" className="section dark-section">
@@ -58,7 +71,7 @@ export default function Challenge2026() {
         <div className="video-grid">
           {videos.map((video, i) => (
             <article className={`video-card ${video.featured ? "featured-video" : ""}`} key={video.title}>
-              {video.id ? <iframe src={`https://www.youtube.com/embed/${video.id}`} title={video.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /> : <div className="video-placeholder"><span>▶</span><small>{i === 0 ? "AÑADIR ÚLTIMO VÍDEO" : "VÍDEO"}</small></div>}
+              {video.id ? <iframe src={`https://www.youtube.com/embed/${video.id}`} title={video.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /> : <div className="video-placeholder"><span>▶</span><small>{i === 0 ? "AÑADIR ÚLTIMO VÍDEO" : "PRÓXIMAMENTE"}</small></div>}
               <h3>{video.title}</h3>
             </article>
           ))}
