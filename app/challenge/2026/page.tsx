@@ -27,10 +27,20 @@ const videos: { title: string; id?: string; featured?: boolean }[] = [
 ];
 
 const clips = [
-  { title: "Mejor clip — votación de la comunidad", note: "Votación abierta en Instagram" },
-  { title: "Clips destacados del Challenge", note: "Próximamente" },
-  { title: "Más momentos del Challenge", note: "Próximamente" },
-];
+  function TwitchIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="twitch-icon"
+    >
+      <path
+        fill="currentColor"
+        d="M4 2h18v13l-5 5h-4l-3 3v-3H4V2zm2 2v14h5v2.2l2.2-2.2H16l4-4V4H6zm3 3h2v6H9V7zm5 0h2v6h-2V7z"
+      />
+    </svg>
+  );
+}
 
 export default function Challenge2026() {
   return (
@@ -56,7 +66,7 @@ export default function Challenge2026() {
         </div>
         <div className="final-table">
           {finalClassification.map((player, index) => {
-            const content = <><span className="position">{String(index + 1).padStart(2, "0")}</span><strong>{player.name}</strong><span className="rank-value">{player.rank} · {player.lp} LP</span>{player.twitch && <span className="stream-link" aria-label={`Twitch de ${player.name}`}>TWITCH ↗</span>}</>;
+            const content = <><span className="position">{String(index + 1).padStart(2, "0")}</span><strong>{player.name}</strong><span className="rank-value">{player.rank} · {player.lp} LP</span>{player.twitch && <span className="stream-link" aria-label={`Twitch de ${player.name}`}>  <TwitchIcon /> ↗</span>}</>;
             return player.twitch ? <a className={`final-row ${index === 0 ? "champion-row" : ""}`} key={player.name} href={player.twitch} target="_blank" rel="noreferrer">{content}</a> : <div className={`final-row ${index === 0 ? "champion-row" : ""}`} key={player.name}>{content}</div>;
           })}
         </div>
