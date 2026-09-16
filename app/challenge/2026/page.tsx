@@ -3,9 +3,9 @@ import Link from "next/link";
 
 const finalClassification = [
   { name: "sallanman", rank: "EMERALD IV", lp: 2 },
-  { name: "Dragonsniper", rank: "PLATINUM III", lp: 10 },
   { name: "OreWaRuo", rank: "PLATINUM II", lp: 25 },
   { name: "Fardos31", rank: "PLATINUM III", lp: 11 },
+  { name: "Dragonsniper", rank: "PLATINUM III", lp: 10 },
   { name: "ByGrefuso", rank: "GOLD I", lp: 7 },
   { name: "Luewer", rank: "GOLD III", lp: 10 },
   { name: "Cristian", rank: "GOLD IV", lp: 85 },
@@ -50,9 +50,9 @@ export default function Challenge2026() {
       <section id="classification" className="section">
         <div className="section-head"><span>01</span><div><div className="eyebrow">RESULTADO FINAL</div><h2>CLASIFICACIÓN FINAL</h2></div></div>
         <div className="podium">
-          <div className="podium-card second"><b>02</b><span>🥈</span><h3>DRAGONSNIPER</h3><small>PLATINUM III · 10 LP</small></div>
+          <div className="podium-card second"><b>02</b><span>🥈</span><h3>OREWARUO</h3><small>PLATINUM II · 25 LP</small></div>
           <div className="podium-card first"><b>01</b><span>🏆</span><h3>SALLANMAN</h3><small>EMERALD IV · 2 LP</small></div>
-          <div className="podium-card third"><b>03</b><span>🥉</span><h3>OREWARUO</h3><small>PLATINUM II · 25 LP</small></div>
+          <div className="podium-card third"><b>03</b><span>🥉</span><h3>FARDOS31</h3><small>PLATINUM III · 11 LP</small></div>
         </div>
         <div className="final-table">
           {finalClassification.map((player, index) => (
