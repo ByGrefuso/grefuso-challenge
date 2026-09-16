@@ -11,13 +11,13 @@ const finalClassification = [
   { name: "Cristian", rank: "GOLD IV", lp: 85, twitch: "https://www.twitch.tv/crisblade_" },
   { name: "Kawinho15", rank: "GOLD IV", lp: 39, twitch: "https://www.twitch.tv/kawinho15_" },
   { name: "ByDagma", rank: "GOLD IV", lp: 7, twitch: "https://www.twitch.tv/bydagma" },
-  { name: "4l3", rank: "SILVER II", lp: 95 , twitch: "https://www.twitch.tv/euwthe4l3" },
+  { name: "4l3", rank: "SILVER II", lp: 95, twitch: "https://www.twitch.tv/euwthe4l3" },
   { name: "Bounjimi", rank: "SILVER III", lp: 72 },
   { name: "Hiperbole", rank: "BRONZE II", lp: 65 },
-  { name: "marccalvo", rank: "BRONZE II", lp: 5 , twitch: "https://www.twitch.tv/marcsuarezdp" },
-  { name: "Delacasa95", rank: "BRONZE III", lp: 86 , twitch: "https://www.twitch.tv/delakelly" },
-  { name: "Yuki26", rank: "BRONZE III", lp: 2 , twitch: "https://www.twitch.tv/yuuki26_" },
-  { name: "Muchars", rank: "HIERRO IV", lp: 0 , twitch: "https://www.twitch.tv/muchars" },
+  { name: "marccalvo", rank: "BRONZE II", lp: 5, twitch: "https://www.twitch.tv/marcsuarezdp" },
+  { name: "Delacasa95", rank: "BRONZE III", lp: 86, twitch: "https://www.twitch.tv/delakelly" },
+  { name: "Yuki26", rank: "BRONZE III", lp: 2, twitch: "https://www.twitch.tv/yuuki26_" },
+  { name: "Muchars", rank: "HIERRO IV", lp: 0, twitch: "https://www.twitch.tv/muchars" },
 ];
 
 const videos: { title: string; id?: string; featured?: boolean }[] = [
@@ -50,13 +50,13 @@ export default function Challenge2026() {
       <section id="classification" className="section">
         <div className="section-head"><span>01</span><div><div className="eyebrow">RESULTADO FINAL</div><h2>CLASIFICACIÓN FINAL</h2></div></div>
         <div className="podium">
-          <div className="podium-card second"><b>02</b><span>🥈</span><h3>OREWARUO</h3><small>PLATINUM II · 25 LP</small></div>
+          <div className="podium-card second"><b>02</b><span>🥈</span><h3>OREWARULO</h3><small>PLATINUM II · 25 LP</small></div>
           <div className="podium-card first"><b>01</b><span>🏆</span><h3>SALLANMAN</h3><small>EMERALD IV · 2 LP</small></div>
           <div className="podium-card third"><b>03</b><span>🥉</span><h3>FARDOS31</h3><small>PLATINUM III · 11 LP</small></div>
         </div>
         <div className="final-table">
           {finalClassification.map((player, index) => {
-            const content = <><span className="position">{String(index + 1).padStart(2, "0")}</span><strong>{player.name}</strong><span className="rank-value">{player.rank} · {player.lp} LP</span>{player.twitch && <span className="stream-link">TWITCH ↗</span>}</>;
+            const content = <><span className="position">{String(index + 1).padStart(2, "0")}</span><strong>{player.name}</strong><span className="rank-value">{player.rank} · {player.lp} LP</span>{player.twitch && <span className="stream-link" aria-label={`Twitch de ${player.name}`}>TWITCH ↗</span>}</>;
             return player.twitch ? <a className={`final-row ${index === 0 ? "champion-row" : ""}`} key={player.name} href={player.twitch} target="_blank" rel="noreferrer">{content}</a> : <div className={`final-row ${index === 0 ? "champion-row" : ""}`} key={player.name}>{content}</div>;
           })}
         </div>
