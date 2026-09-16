@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 const finalClassification = [
-  { name: "sallanman", rank: "EMERALD IV", lp: 2, twitch: "https://www.twitch.tv/sallanman" },
+  { name: "sallanman", rank: "EMERALD IV", lp: 2, twitch: "https://www.twitch.tv/sallanman_cat" },
   { name: "OreWaRulo", rank: "PLATINUM II", lp: 25, twitch: "https://www.twitch.tv/orewarulo" },
   { name: "Fardos31", rank: "PLATINUM III", lp: 11, twitch: "https://www.twitch.tv/fardos_31" },
   { name: "Dragonsniper", rank: "PLATINUM III", lp: 10, twitch: "https://www.twitch.tv/dragonsniper555" },
