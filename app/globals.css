@@ -8,3 +8,27 @@
 .coming-section{padding:120px 6%;text-align:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:radial-gradient(circle,rgba(255,22,143,.1),transparent 50%)}.coming-section h2{font-size:clamp(60px,9vw,120px);margin:12px 0}.coming-section p{color:#999;margin-bottom:25px}.coming-section span{display:inline-block;border:1px solid rgba(255,22,143,.4);padding:11px 16px;color:var(--pink);font-size:9px;font-weight:900;letter-spacing:.2em}
 .champion-banner{position:relative;z-index:2;margin-top:32px;width:min(600px,100%);padding:25px 30px;border:1px solid rgba(255,22,143,.4);background:rgba(255,22,143,.06);display:flex;flex-direction:column;gap:4px}.champion-banner span{font-size:9px;color:var(--pink);font-weight:900;letter-spacing:.15em}.champion-banner strong{font:900 58px "Barlow Condensed"}.champion-banner small{font-size:8px;color:#777;letter-spacing:.12em}.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:15px;align-items:end;margin-bottom:25px}.podium-card{background:var(--panel);border:1px solid var(--line);padding:30px;text-align:center;min-height:190px}.podium-card.first{min-height:235px;border-color:rgba(255,22,143,.45)}.podium-card>b{display:block;color:#555;font-size:10px}.podium-card span{display:block;font-size:32px;margin:10px}.podium-card h3{font-size:28px}.podium-card small{display:block;color:#777;font-size:8px;margin-top:7px}.final-table{border-top:1px solid var(--line)}.final-row{display:grid;grid-template-columns:70px 1fr 220px;align-items:center;padding:18px;border-bottom:1px solid var(--line);background:#08080a}.final-row:hover{background:#101014}.position{color:#555;font:900 22px "Barlow Condensed"}.rank-value{color:#777;text-align:right;font-size:9px;font-weight:900;letter-spacing:.08em}.champion-row{background:rgba(255,22,143,.08);border-color:rgba(255,22,143,.25)}.champion-row .position,.champion-row strong,.champion-row .rank-value{color:var(--pink)}.archive-note{color:#666;font-size:10px;margin-top:18px}.video-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.video-card{background:#101014;border:1px solid var(--line);overflow:hidden}.video-card iframe{width:100%;aspect-ratio:16/9;border:0}.video-placeholder{aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#170913,#09090b);color:var(--pink)}.video-placeholder span{font-size:35px}.video-placeholder small{font-size:8px;font-weight:900;letter-spacing:.15em;margin-top:8px}.video-card h3{font-size:21px;padding:17px}.featured-video{grid-column:span 2}.clip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.clip-card{min-height:170px;padding:25px;display:flex;align-items:center;gap:18px;border:1px solid var(--line);background:#0c0c0f}.clip-card:hover{border-color:rgba(255,22,143,.4)}.clip-number{font:900 38px "Barlow Condensed";color:var(--pink)}.clip-card h3{font-size:23px}.clip-card p{font-size:10px;color:#777;margin-top:7px}.clip-card>span{margin-left:auto;color:var(--pink)}.instagram-cta{margin-top:25px;padding:25px;background:rgba(255,22,143,.07);border:1px solid rgba(255,22,143,.25);display:flex;align-items:center;gap:20px}.instagram-cta strong{font:900 25px "Barlow Condensed"}.instagram-cta span{color:#888;font-size:10px}.instagram-cta a{margin-left:auto;color:var(--pink);font-size:9px;font-weight:900;letter-spacing:.1em}.footer{max-width:1400px;margin:auto;padding:30px 6%;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:#555;font-size:9px;font-weight:900;letter-spacing:.1em}.footer a:hover{color:var(--pink)}
 @media(max-width:800px){.topbar{padding:0 5%}.topbar nav{gap:12px;font-size:8px}.event-grid,.video-grid,.clip-grid,.podium{grid-template-columns:1fr}.featured-video{grid-column:auto}.section{padding:70px 5%}.section-head h2{font-size:42px}.final-row{grid-template-columns:45px 1fr}.rank-value{grid-column:2;text-align:left;margin-top:5px}.home-hero,.archive-hero{padding:100px 5%;min-height:520px}.instagram-cta{flex-direction:column;align-items:flex-start}.instagram-cta a{margin-left:0}.champion-banner strong{font-size:45px}}
+.stream-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  color: #9146ff;
+  transition: 0.2s ease;
+}
+
+.stream-link:hover {
+  background: rgba(145, 70, 255, 0.12);
+  border-color: #9146ff;
+  transform: translateY(-1px);
+}
+
+.twitch-icon {
+  width: 18px;
+  height: 18px;
+}
