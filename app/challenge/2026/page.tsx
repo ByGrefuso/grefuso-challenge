@@ -2,15 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 
 const finalClassification = [
-  { name: "sallanman", rank: "EMERALD IV", lp: 2 },
-  { name: "OreWaRuo", rank: "PLATINUM II", lp: 25 },
-  { name: "Fardos31", rank: "PLATINUM III", lp: 11 },
-  { name: "Dragonsniper", rank: "PLATINUM III", lp: 10 },
-  { name: "ByGrefuso", rank: "GOLD I", lp: 7 },
-  { name: "Luewer", rank: "GOLD III", lp: 10 },
-  { name: "Cristian", rank: "GOLD IV", lp: 85 },
-  { name: "Kawinho15", rank: "GOLD IV", lp: 39 },
-  { name: "Kiwix", rank: "GOLD IV", lp: 7 },
+  { name: "sallanman", rank: "EMERALD IV", lp: 2, twitch: "https://www.twitch.tv/sallanman" },
+  { name: "OreWaRuo", rank: "PLATINUM II", lp: 25, twitch: "https://www.twitch.tv/orewaruo" },
+  { name: "Fardos31", rank: "PLATINUM III", lp: 11, twitch: "https://www.twitch.tv/fardos31" },
+  { name: "Dragonsniper", rank: "PLATINUM III", lp: 10, twitch: "https://www.twitch.tv/dragonsniper" },
+  { name: "ByGrefuso", rank: "GOLD I", lp: 7, twitch: "https://www.twitch.tv/bygrefuso" },
+  { name: "Luewer", rank: "GOLD III", lp: 10, twitch: "https://www.twitch.tv/luewer" },
+  { name: "Cristian", rank: "GOLD IV", lp: 85, twitch: "https://www.twitch.tv/cristian" },
+  { name: "Kawinho15", rank: "GOLD IV", lp: 39, twitch: "https://www.twitch.tv/kawinho15" },
+  { name: "Kiwix", rank: "GOLD IV", lp: 7, twitch: "https://www.twitch.tv/kiwix" },
   { name: "4l3", rank: "SILVER II", lp: 95 },
   { name: "Bounjimi", rank: "SILVER III", lp: 72 },
   { name: "Hiperbole", rank: "BRONZE II", lp: 65 },
@@ -55,13 +55,10 @@ export default function Challenge2026() {
           <div className="podium-card third"><b>03</b><span>🥉</span><h3>FARDOS31</h3><small>PLATINUM III · 11 LP</small></div>
         </div>
         <div className="final-table">
-          {finalClassification.map((player, index) => (
-            <div className={`final-row ${index === 0 ? "champion-row" : ""}`} key={player.name}>
-              <span className="position">{String(index + 1).padStart(2, "0")}</span>
-              <strong>{player.name}</strong>
-              <span className="rank-value">{player.rank} · {player.lp} LP</span>
-            </div>
-          ))}
+          {finalClassification.map((player, index) => {
+            const content = <><span className="position">{String(index + 1).padStart(2, "0")}</span><strong>{player.name}</strong><span className="rank-value">{player.rank} · {player.lp} LP</span>{player.twitch && <span className="stream-link">TWITCH ↗</span>}</>;
+            return player.twitch ? <a className={`final-row ${index === 0 ? "champion-row" : ""}`} key={player.name} href={player.twitch} target="_blank" rel="noreferrer">{content}</a> : <div className={`final-row ${index === 0 ? "champion-row" : ""}`} key={player.name}>{content}</div>;
+          })}
         </div>
         <p className="archive-note">Clasificación final oficial de Grefuso Challenge 2026. Estos resultados quedan guardados como archivo histórico y no dependen de la Riot API.</p>
       </section>
