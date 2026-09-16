@@ -23,7 +23,7 @@ export default function Home() {
         </div>
       </section>
       <section className="coming-section"><div className="coming-label">PRÓXIMO EVENTO</div><h2>GREFUSO CUP 2026</h2><p>Estamos preparando algo grande.</p><span>PRÓXIMAMENTE</span></section>
-      <footer className="footer"><span>GREFUSO EVENTS</span><span>BYGREFUSO</span></footer>
+      <footer className="footer"><a href="https://www.instagram.com/bygrefuso" target="_blank" rel="noreferrer">BYGREFUSO</a><span>© 2026</span></footer>
     </main>
   );
 }
