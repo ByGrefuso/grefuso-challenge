@@ -94,7 +94,7 @@ export default function Challenge2026() {
         </div>
         <div className="final-table">
           {finalClassification.map((player, index) => {
-            const content = <><span className="position">{String(index + 1).padStart(2, "0")}</span><strong>{player.name}</strong><span className="rank-value">{player.rank} · {player.lp} LP</span>{player.twitch && <span className="stream-link" aria-label={`Twitch de ${player.name}`}>  <TwitchIcon /> ↗</span>}</>;
+            const content = <><span className="position">{String(index + 1).padStart(2, "0")}</span><strong>{player.name}</strong><span className="rank-value">{player.rank} · {player.lp} LP</span>{player.twitch && <span className="stream-link" aria-label={`Twitch de ${player.name}`} title={`Twitch de ${player.name}`}><TwitchIcon /></span>}</>;
             return player.twitch ? <a className={`final-row ${index === 0 ? "champion-row" : ""}`} key={player.name} href={player.twitch} target="_blank" rel="noreferrer">{content}</a> : <div className={`final-row ${index === 0 ? "champion-row" : ""}`} key={player.name}>{content}</div>;
           })}
         </div>
@@ -116,24 +116,18 @@ export default function Challenge2026() {
       <section id="clips" className="section">
         <div className="section-head"><span>03</span><div><div className="eyebrow">COMUNIDAD</div><h2>MEJORES CLIPS</h2></div></div>
         <div className="clip-grid">
-  {clips.map((clip, i) => (
-    <article className="clip-card" key={clip.file}>
-      <div className="clip-number">0{i + 1}</div>
-
-      <video
-        controls
-        preload="metadata"
-        playsInline
-        src={clip.file}
-      />
-
-      <div>
-        <h3>{clip.title}</h3>
-        <p>Grefuso Challenge 2026</p>
-      </div>
-    </article>
-  ))}
-</div>
+          {clips.map((clip, i) => (
+            <article className="clip-card" key={clip.file}>
+              <div className="clip-number">0{i + 1}</div>
+              <video controls preload="metadata" playsInline src={clip.file} />
+              <div>
+                <h3>{clip.title}</h3>
+                <p>Grefuso Challenge 2026</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <footer className="footer"><Link href="/">← GREFUSO EVENTS</Link><span>GREFUSO CHALLENGE 2026</span></footer>
     </main>
