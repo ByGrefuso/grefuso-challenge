@@ -3,21 +3,21 @@ import Link from "next/link";
 
 const finalClassification = [
   { name: "sallanman", rank: "EMERALD IV", lp: 2, twitch: "https://www.twitch.tv/sallanman" },
-  { name: "OreWaRuo", rank: "PLATINUM II", lp: 25, twitch: "https://www.twitch.tv/orewaruo" },
-  { name: "Fardos31", rank: "PLATINUM III", lp: 11, twitch: "https://www.twitch.tv/fardos31" },
-  { name: "Dragonsniper", rank: "PLATINUM III", lp: 10, twitch: "https://www.twitch.tv/dragonsniper" },
+  { name: "OreWaRulo", rank: "PLATINUM II", lp: 25, twitch: "https://www.twitch.tv/orewarulo" },
+  { name: "Fardos31", rank: "PLATINUM III", lp: 11, twitch: "https://www.twitch.tv/fardos_31" },
+  { name: "Dragonsniper", rank: "PLATINUM III", lp: 10, twitch: "https://www.twitch.tv/dragonsniper555" },
   { name: "ByGrefuso", rank: "GOLD I", lp: 7, twitch: "https://www.twitch.tv/bygrefuso" },
-  { name: "Luewer", rank: "GOLD III", lp: 10, twitch: "https://www.twitch.tv/luewer" },
-  { name: "Cristian", rank: "GOLD IV", lp: 85, twitch: "https://www.twitch.tv/cristian" },
-  { name: "Kawinho15", rank: "GOLD IV", lp: 39, twitch: "https://www.twitch.tv/kawinho15" },
-  { name: "Kiwix", rank: "GOLD IV", lp: 7, twitch: "https://www.twitch.tv/kiwix" },
-  { name: "4l3", rank: "SILVER II", lp: 95 },
+  { name: "Luewer", rank: "GOLD III", lp: 10, twitch: "https://www.twitch.tv/luewer18" },
+  { name: "Cristian", rank: "GOLD IV", lp: 85, twitch: "https://www.twitch.tv/crisblade_" },
+  { name: "Kawinho15", rank: "GOLD IV", lp: 39, twitch: "https://www.twitch.tv/kawinho15_" },
+  { name: "Kiwix", rank: "GOLD IV", lp: 7, twitch: "https://www.twitch.tv/bydagma" },
+  { name: "4l3", rank: "SILVER II", lp: 95 }, twitch: "https://www.twitch.tv/euwthe4l3" },
   { name: "Bounjimi", rank: "SILVER III", lp: 72 },
   { name: "Hiperbole", rank: "BRONZE II", lp: 65 },
-  { name: "marccalvo", rank: "BRONZE II", lp: 5 },
-  { name: "Delacasa95", rank: "BRONZE III", lp: 86 },
-  { name: "Yuki26", rank: "BRONZE III", lp: 2 },
-  { name: "Muchars", rank: "HIERRO IV", lp: 0 },
+  { name: "marccalvo", rank: "BRONZE II", lp: 5 }, twitch: "https://www.twitch.tv/marcsuarezdp" },
+  { name: "Delacasa95", rank: "BRONZE III", lp: 86 }, twitch: "https://www.twitch.tv/delakelly" },
+  { name: "Yuki26", rank: "BRONZE III", lp: 2 }, twitch: "https://www.twitch.tv/yuuki26_" },
+  { name: "Muchars", rank: "HIERRO IV", lp: 0 }, twitch: "https://www.twitch.tv/muchars" },
 ];
 
 const videos: { title: string; id?: string; featured?: boolean }[] = [
