@@ -32,7 +32,7 @@ const videos = [
   },
   {
     title: "Grefuso Challenge 2026 — Vídeo resumen final",
-    id: undefined,
+    id: "RMu3-K0btqQ",
   },
 ];
 
@@ -104,9 +104,9 @@ export default function Challenge2026() {
       <section id="videos" className="section dark-section">
         <div className="section-head"><span>02</span><div><div className="eyebrow">YOUTUBE</div><h2>RESUMEN DEL EVENTO</h2></div></div>
         <div className="video-grid">
-          {videos.map((video, i) => (
+          {videos.map((video) => (
             <article className={`video-card ${video.featured ? "featured-video" : ""}`} key={video.title}>
-              {video.id ? <iframe src={`https://www.youtube.com/embed/${video.id}`} title={video.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /> : <div className="video-placeholder"><span>▶</span><small>{i === 0 ? "AÑADIR ÚLTIMO VÍDEO" : "PRÓXIMAMENTE"}</small></div>}
+              <iframe src={`https://www.youtube.com/embed/${video.id}`} title={video.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
               <h3>{video.title}</h3>
             </article>
           ))}
